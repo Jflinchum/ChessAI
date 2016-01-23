@@ -37,9 +37,9 @@ public class GameManager {
                 if(testboard.checkPiece.getColor()){
                     for(ChessPiece piece : testboard.whitePieces){
                         if(!piece.getRemoved()) {
-                            for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext(); ) {
+                            for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
                                 Location move = iterator.next();
-                                if (!testboard.RemovesCheck(piece, move)) {
+                                if (!testboard.removesCheck(piece, move)) {
                                     iterator.remove();
                                 }
                             }
@@ -49,9 +49,9 @@ public class GameManager {
                 else{
                     for(ChessPiece piece : testboard.blackPieces){
                         if(!piece.getRemoved()) {
-                            for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext(); ) {
+                            for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
                                 Location move = iterator.next();
-                                if (!testboard.RemovesCheck(piece, move)) {
+                                if (!testboard.removesCheck(piece, move)) {
                                     iterator.remove();
                                 }
                             }
@@ -128,11 +128,7 @@ public class GameManager {
                 else if (answer.length() >= 4 && answer.substring(0, 4).equals("move")) {
                     //move is a proper command it is the proper size and if the numbers at the proper positions are actually numbers.
                     if (answer.length() >= 12 && isNumeric(answer.substring(5, 6)) && isNumeric(answer.substring(7, 8))
-                            && isNumeric(answer.substring(9, 10)) &&
-
-
-
-                            isNumeric(answer.substring(11, 12))) {
+                            && isNumeric(answer.substring(9, 10)) && isNumeric(answer.substring(11, 12))) {
                         Location oldLoc = new Location(Integer.parseInt(answer.substring(5,6)), Integer.parseInt(answer.substring(7, 8)));
                         Location newLoc = new Location(Integer.parseInt(answer.substring(9,10)), Integer.parseInt(answer.substring(11,12)));
                         ChessPiece piece = testboard.board[oldLoc.x][oldLoc.y].pieceHold;
@@ -162,27 +158,8 @@ public class GameManager {
 
                 }
                 else if(answer.length() >= 6 && answer.substring(0, 6).equals("castle")){
-                    if (answer.length() >= 14 &&
-
-
-
-                            isNumeric(answer.substring(7, 8)) &&
-
-
-
-                            isNumeric(answer.substring(9, 10))
-                            &&
-
-
-
-
-
-                            isNumeric(answer.substring(11, 12)) &&
-
-
-
-
-                            isNumeric(answer.substring(13, 14))) {
+                    if (answer.length() >= 14 && isNumeric(answer.substring(7, 8)) && isNumeric(answer.substring(9, 10))
+                            && isNumeric(answer.substring(11, 12)) && isNumeric(answer.substring(13, 14))) {
                         Location kingLoc = new Location(Integer.parseInt(answer.substring(7,8)), Integer.parseInt(answer.substring(9,10)));
                         Location rookLoc = new Location(Integer.parseInt(answer.substring(11,12)), Integer.parseInt(answer.substring(13,14)));
                         ChessPiece kingPiece = testboard.board[kingLoc.x][kingLoc.y].pieceHold;
@@ -337,10 +314,7 @@ public class GameManager {
     /*
     isNumeric function returns true if the string is a number and false otherwise
      */
-    private static boolean
-
-
-    isNumeric(String s){
+    private static boolean isNumeric(String s){
         try{
             Double.parseDouble(s);
         }

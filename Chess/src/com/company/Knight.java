@@ -98,7 +98,6 @@ public class Knight implements ChessPiece {
         return this;
     }
 
-
     /*
     Prints out the symbol of the chess piece. Upper case is white, lower case is black
      */

@@ -146,7 +146,7 @@ public class ChessBoard {
     of the enemy pieces. If the move removes the check piece, returns true. Returns the board to it's original state
     after the check.
      */
-    public boolean RemovesCheck(ChessPiece piece, Location pos){
+    public boolean removesCheck(ChessPiece piece, Location pos){
         boolean check = true;
         //Saving the parts of the board that will change
         ChessPiece oldPiece = board[pos.x][pos.y].pieceHold;
