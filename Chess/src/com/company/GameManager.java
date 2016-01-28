@@ -420,8 +420,8 @@ public class GameManager {
         for(ChessPiece piece : curr.whitePieces){
             if(piece.getClass() == Pawn.class){
                 Pawn pawn = (Pawn)piece;
-                if(pawn.enPassant && curr.board[pawn.getLocation().x][pawn.getLocation().y-1].pieceHold.getClass() == Pawn.class
-                        && curr.board[pawn.getLocation().x][pawn.getLocation().y-1].pieceHold.getColor() != pawn.getColor()){
+                ChessPiece behind = curr.board[pawn.getLocation().x][pawn.getLocation().y-1].pieceHold;
+                if(pawn.enPassant && behind!=null && behind.getClass() == Pawn.class && behind.getColor() != pawn.getColor()){
                     removePiece(pawn, curr);
                 }
             }
@@ -429,8 +429,8 @@ public class GameManager {
         for(ChessPiece piece : curr.blackPieces){
             if(piece.getClass() == Pawn.class){
                 Pawn pawn = (Pawn)piece;
-                if(pawn.enPassant && curr.board[pawn.getLocation().x][pawn.getLocation().y+1].pieceHold.getClass() == Pawn.class
-                        && curr.board[pawn.getLocation().x][pawn.getLocation().y+1].pieceHold.getColor() != pawn.getColor()){
+                ChessPiece behind = curr.board[pawn.getLocation().x][pawn.getLocation().y+1].pieceHold;
+                if(pawn.enPassant && behind!= null && behind.getClass() == Pawn.class && behind.getColor() != pawn.getColor()){
                     removePiece(pawn, curr);
                 }
             }

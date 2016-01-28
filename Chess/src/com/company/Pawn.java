@@ -33,7 +33,6 @@ public class Pawn implements ChessPiece {
     public void setLocation(int x, int y) {
         if(Math.abs(y - pos.y) == 2){
             enPassant = true;
-            System.out.println("ENPASSANT ACTIVE: " + this);
         }
         pos.x = x;
         pos.y = y;
