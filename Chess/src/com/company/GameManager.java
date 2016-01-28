@@ -59,16 +59,23 @@ public class GameManager {
                     }
                 }
             }
+            enPassant(testboard);
             ++turn;
             ArrayList<Location> blackMoves;
             ArrayList<Location> whiteMoves;
-            //WIN CONDITIONS
+
             //If it is black's turn
             if(turn%2==0){
+                //WIN CONDITIONS
                 blackMoves = new ArrayList<>();
                 for(ChessPiece piece : testboard.blackPieces){
                     if(!piece.getRemoved())
                         blackMoves.addAll(piece.getMoves());
+                    //Removing enPassant from any pawn who already has it. enPassant only lasts one turn
+                    if(piece.getClass() == Pawn.class){
+                        Pawn pawn = (Pawn)piece;
+                        pawn.enPassant = false;
+                    }
                 }
                 //If black has no moves
                 if(blackMoves.size() == 0){
@@ -84,10 +91,16 @@ public class GameManager {
             }
             //If it is white's turn
             else{
+                //WIN CONDITIONS
                 whiteMoves = new ArrayList<>();
                 for(ChessPiece piece : testboard.whitePieces){
                     if(!piece.getRemoved())
                         whiteMoves.addAll(piece.getMoves());
+                    //Removing enPassant from any pawn who already has it. enPassant only lasts one turn
+                    if(piece.getClass() == Pawn.class){
+                        Pawn pawn = (Pawn)piece;
+                        pawn.enPassant = false;
+                    }
                 }
                 //If white has no moves
                 if(whiteMoves.size() == 0){
@@ -100,7 +113,6 @@ public class GameManager {
                     System.out.println(testboard);
                     break;
                 }
-                System.out.println(whiteMoves);
             }
             System.out.println((turn%2 == 0 ? "Black " : "White ") + "Turn: " + turn);
             System.out.println(testboard);
@@ -396,5 +408,32 @@ public class GameManager {
     private static void removePiece(ChessPiece piece, ChessBoard curr){
         curr.board[piece.getLocation().x][piece.getLocation().y].pieceHold = null;
         piece.setRemoved(true);
+    }
+
+    /*
+    A function that checks for enPassant on a chess board after a move is done.
+    It looks for any pawns that have enPassant as true and checks if there is an enemy pawn behind it.
+    If it has an enemy pawn behind it, the pawn with enPassant is removed.
+    This situation can only occur as an end result of an enPassant
+     */
+    private static void enPassant(ChessBoard curr){
+        for(ChessPiece piece : curr.whitePieces){
+            if(piece.getClass() == Pawn.class){
+                Pawn pawn = (Pawn)piece;
+                if(pawn.enPassant && curr.board[pawn.getLocation().x][pawn.getLocation().y-1].pieceHold.getClass() == Pawn.class
+                        && curr.board[pawn.getLocation().x][pawn.getLocation().y-1].pieceHold.getColor() != pawn.getColor()){
+                    removePiece(pawn, curr);
+                }
+            }
+        }
+        for(ChessPiece piece : curr.blackPieces){
+            if(piece.getClass() == Pawn.class){
+                Pawn pawn = (Pawn)piece;
+                if(pawn.enPassant && curr.board[pawn.getLocation().x][pawn.getLocation().y+1].pieceHold.getClass() == Pawn.class
+                        && curr.board[pawn.getLocation().x][pawn.getLocation().y+1].pieceHold.getColor() != pawn.getColor()){
+                    removePiece(pawn, curr);
+                }
+            }
+        }
     }
 }

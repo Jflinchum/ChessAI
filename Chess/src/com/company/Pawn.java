@@ -10,6 +10,7 @@ public class Pawn implements ChessPiece {
     public boolean white;
     public Location pos = new Location(0, 0);
     public boolean moved = false;
+    public boolean enPassant = false;
     public boolean removed = false;
     public ArrayList<Location> posMoves = new ArrayList<>();
 
@@ -30,6 +31,10 @@ public class Pawn implements ChessPiece {
      */
     @Override
     public void setLocation(int x, int y) {
+        if(Math.abs(y - pos.y) == 2){
+            enPassant = true;
+            System.out.println("ENPASSANT ACTIVE: " + this);
+        }
         pos.x = x;
         pos.y = y;
         moved = true;
@@ -88,6 +93,28 @@ public class Pawn implements ChessPiece {
                 && curr.board[pos.x][pos.y+(i*2)].pieceHold == null)
             moves.add(new Location(pos.x, pos.y+(i*2)));
 
+        /*enPassant is when a pawn can take another pawn that just moved two spaces forward by moving to the space it
+        would have been at if it only moved one space forward. This situation only occurs if the enemy pawn moved 2 spaces
+        forward and ends up right next to this pawn.
+         */
+        if(pos.x+1 <= 7){
+            ChessPiece piece = curr.board[pos.x+1][pos.y].pieceHold;
+            if (piece != null && piece.getClass() == Pawn.class && piece.getColor() != this.getColor()) {
+                Pawn ePawn = (Pawn) piece;
+                if(ePawn.enPassant){
+                    moves.add(new Location(pos.x+1, pos.y+i));
+                }
+            }
+        }
+        if(pos.x-1 >= 0){
+            ChessPiece piece = curr.board[pos.x-1][pos.y].pieceHold;
+            if (piece != null && piece.getClass() == Pawn.class && piece.getColor() != this.getColor()) {
+                Pawn ePawn = (Pawn) piece;
+                if(ePawn.enPassant){
+                    moves.add(new Location(pos.x-1, pos.y+i));
+                }
+            }
+        }
         this.posMoves = moves;
     }
 
