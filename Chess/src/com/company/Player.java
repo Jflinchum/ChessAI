@@ -6,5 +6,6 @@ package com.company;
 public interface Player {
 
     public Move getMove(ChessBoard board);
+    public ChessPiece upgradePawn(ChessBoard board, ChessPiece pawn);
 
 }

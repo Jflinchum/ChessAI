@@ -20,7 +20,7 @@ public class GameManager {
             System.out.println("Who is white? Human or Computer?");
             answer = input.nextLine();
             if (answer.equals("Human")) {
-                white = new Human();
+                white = new Human(true);
                 break;
             }
             else if(answer.equals("Computer")){
@@ -33,7 +33,7 @@ public class GameManager {
             System.out.println("Who is black? Human or Computer?");
             answer = input.nextLine();
             if (answer.equals("Human")) {
-                black = new Human();
+                black = new Human(false);
                 break;
             }
             else if(answer.equals("Computer")){
@@ -51,43 +51,8 @@ public class GameManager {
         moves n,m
          */
         while(!answer.equals("stop")){
-            testboard.checkPiece = null;
-            for(ChessPiece piece : testboard.whitePieces){
-                if(!piece.getRemoved())
-                    piece.generateMoves(testboard);
-            }
-            for(ChessPiece piece : testboard.blackPieces){
-                if(!piece.getRemoved())
-                    piece.generateMoves(testboard);
-            }
-            if(testboard.checkPiece!=null){
-                System.out.println((testboard.checkPiece.getColor() ? "White's " : "Black's ") + "King is in check!");
-                //If its king piece is in check, then remove moves that don't uncheck it
-                if(testboard.checkPiece.getColor()){
-                    for(ChessPiece piece : testboard.whitePieces){
-                        if(!piece.getRemoved()) {
-                            for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
-                                Location move = iterator.next();
-                                if (!testboard.removesCheck(piece, move)) {
-                                    iterator.remove();
-                                }
-                            }
-                        }
-                    }
-                }
-                else{
-                    for(ChessPiece piece : testboard.blackPieces){
-                        if(!piece.getRemoved()) {
-                            for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
-                                Location move = iterator.next();
-                                if (!testboard.removesCheck(piece, move)) {
-                                    iterator.remove();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            generateAllMoves(testboard);
+            checkForCheck(testboard);
             enPassant(testboard);
             ++testboard.turn;
             ArrayList<Location> blackMoves;
@@ -143,12 +108,9 @@ public class GameManager {
                     break;
                 }
             }
+
             System.out.println((testboard.turn%2 == 0 ? "Black " : "White ") + "Turn: " + testboard.turn);
             System.out.println(testboard);
-
-            /*
-            ADD IN PLAYER.GET MOVE
-             */
             //White's turn
             if(testboard.turn%2 == 1){
                 Move whiteMove = white.getMove(testboard);
@@ -159,6 +121,10 @@ public class GameManager {
                 else if(whiteMove.piece.getClass() == King.class && testboard.board[whiteMove.pos.x][whiteMove.pos.y].pieceHold != null
                         && testboard.board[whiteMove.pos.x][whiteMove.pos.y].pieceHold.getClass() == Rook.class){
                     castle(testboard, whiteMove.piece.getLocation(), whiteMove.pos);
+                }
+                else if(whiteMove.piece.getClass() == Pawn.class && whiteMove.pos.y == 7){
+                    movePiece(testboard, whiteMove);
+                    white.upgradePawn(testboard, whiteMove.piece);
                 }
                 else{
                     movePiece(testboard, whiteMove);
@@ -177,94 +143,6 @@ public class GameManager {
                 }
                 else{
                     movePiece(testboard, blackMove);
-                }
-            }
-
-
-            //If it is black's turn
-            if(testboard.turn%2==0){
-                for(ChessPiece piece : testboard.blackPieces){
-                    if(!piece.getRemoved() && piece.getClass() == Pawn.class && piece.getLocation().y == 0){
-                        System.out.println("What piece do you want your pawn to be?");
-                        answer = input.nextLine();
-                        while(true) {
-                            if (answer.equals("Queen")) {
-                                Queen newPiece = new Queen(false, piece.getLocation().x, 0);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.blackPieces.add(newPiece);
-                                break;
-                            } else if (answer.equals("Rook")) {
-                                Rook newPiece = new Rook(false, piece.getLocation().x, 0);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.blackPieces.add(newPiece);
-                                break;
-                            } else if (answer.equals("Bishop")) {
-                                Bishop newPiece = new Bishop(false, piece.getLocation().x, 0);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.blackPieces.add(newPiece);
-                                break;
-                            } else if (answer.equals("Knight")) {
-                                Knight newPiece = new Knight(false, piece.getLocation().x, 0);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.blackPieces.add(newPiece);
-                                break;
-                            } else {
-                                System.out.println("Choose Queen, Rook, Bishop, or Knight.");
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            //If it is white's turn
-            else{
-                for(ChessPiece piece: testboard.whitePieces){
-                    if(!piece.getRemoved() && piece.getClass() == Pawn.class && piece.getLocation().y == 7){
-                        System.out.println("What piece do you want your pawn to be?");
-                        answer = input.nextLine();
-                        while(true) {
-                            if (answer.equals("Queen")) {
-                                Queen newPiece = new Queen(true, piece.getLocation().x, 7);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.whitePieces.add(newPiece);
-                                break;
-                            } else if (answer.equals("Rook")) {
-                                Rook newPiece = new Rook(true, piece.getLocation().x, 7);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.whitePieces.add(newPiece);
-                                break;
-                            } else if (answer.equals("Bishop")) {
-                                Bishop newPiece = new Bishop(true, piece.getLocation().x, 7);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.whitePieces.add(newPiece);
-                                break;
-                            } else if (answer.equals("Knight")) {
-                                Knight newPiece = new Knight(true, piece.getLocation().x, 7);
-                                newPiece.setMoved(true);
-                                removePiece(piece, testboard);
-                                testboard.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                                testboard.whitePieces.add(newPiece);
-                                break;
-                            } else {
-                                System.out.println("Choose Queen, Rook, Bishop, or Knight.");
-                            }
-                        }
-                        break;
-                    }
                 }
             }
         }
@@ -303,17 +181,9 @@ public class GameManager {
 
         curr.board[currMove.piece.getLocation().x][currMove.piece.getLocation().y].pieceHold = null;
         if(curr.board[pos.x][pos.y].pieceHold != null)
-            removePiece(curr.board[pos.x][pos.y].pieceHold, curr);
+            curr.removePiece(curr.board[pos.x][pos.y].pieceHold);
         curr.board[pos.x][pos.y].pieceHold = currMove.piece;
         currMove.piece.setLocation(pos.x, pos.y);
-    }
-
-    /*
-    Remove piece from board
-     */
-    private static void removePiece(ChessPiece piece, ChessBoard curr){
-        curr.board[piece.getLocation().x][piece.getLocation().y].pieceHold = null;
-        piece.setRemoved(true);
     }
 
     /*
@@ -328,7 +198,7 @@ public class GameManager {
                 Pawn pawn = (Pawn)piece;
                 ChessPiece behind = curr.board[pawn.getLocation().x][pawn.getLocation().y-1].pieceHold;
                 if(pawn.enPassant && behind!=null && behind.getClass() == Pawn.class && behind.getColor() != pawn.getColor()){
-                    removePiece(pawn, curr);
+                    curr.removePiece(pawn);
                 }
             }
         }
@@ -337,7 +207,56 @@ public class GameManager {
                 Pawn pawn = (Pawn)piece;
                 ChessPiece behind = curr.board[pawn.getLocation().x][pawn.getLocation().y+1].pieceHold;
                 if(pawn.enPassant && behind!= null && behind.getClass() == Pawn.class && behind.getColor() != pawn.getColor()){
-                    removePiece(pawn, curr);
+                    curr.removePiece(pawn);
+                }
+            }
+        }
+    }
+
+    /*
+    Generates moves for all pieces on a board
+     */
+    private static void generateAllMoves(ChessBoard curr){
+        curr.checkPiece = null;
+        for(ChessPiece piece : curr.whitePieces){
+            if(!piece.getRemoved())
+                piece.generateMoves(curr);
+        }
+        for(ChessPiece piece : curr.blackPieces){
+            if(!piece.getRemoved())
+                piece.generateMoves(curr);
+        }
+    }
+
+    /*
+    Checks for if there is a king in check and removes moves from pieces that does not uncheck the king.
+     */
+    private static void checkForCheck(ChessBoard curr){
+        if(curr.checkPiece!=null){
+            System.out.println((curr.checkPiece.getColor() ? "White's " : "Black's ") + "King is in check!");
+            //If its king piece is in check, then remove moves that don't uncheck it
+            if(curr.checkPiece.getColor()){
+                for(ChessPiece piece : curr.whitePieces){
+                    if(!piece.getRemoved()) {
+                        for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
+                            Location move = iterator.next();
+                            if (!curr.removesCheck(piece, move)) {
+                                iterator.remove();
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                for(ChessPiece piece : curr.blackPieces){
+                    if(!piece.getRemoved()) {
+                        for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
+                            Location move = iterator.next();
+                            if (!curr.removesCheck(piece, move)) {
+                                iterator.remove();
+                            }
+                        }
+                    }
                 }
             }
         }

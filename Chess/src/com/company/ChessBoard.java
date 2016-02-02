@@ -190,4 +190,12 @@ public class ChessBoard {
 
         return !check;
     }
+
+    /*
+    Remove piece from board
+     */
+    public void removePiece(ChessPiece piece){
+        board[piece.getLocation().x][piece.getLocation().y].pieceHold = null;
+        piece.setRemoved(true);
+    }
 }

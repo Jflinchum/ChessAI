@@ -6,6 +6,13 @@ import java.util.Scanner;
  * Created by jonathanflinchum on 2/1/16.
  */
 public class Human implements Player {
+
+    private boolean white;
+
+    public Human(boolean white){
+        this.white = white;
+    }
+
     @Override
     public Move getMove(ChessBoard testboard) {
         Scanner input = new Scanner(System.in);
@@ -193,5 +200,47 @@ public class Human implements Player {
             }
         }
         return true;
+    }
+
+    public ChessPiece upgradePawn(ChessBoard curr, ChessPiece pawn){
+        Scanner input = new Scanner(System.in);
+        String answer;
+        ChessPiece newPiece;
+        System.out.println("What piece do you want your pawn to be?");
+        answer = input.nextLine();
+        while(true) {
+            if (answer.equals("Queen")) {
+                newPiece = new Queen(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
+                newPiece.setMoved(true);
+                curr.removePiece(pawn);
+                curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
+                curr.blackPieces.add(newPiece);
+                break;
+            } else if (answer.equals("Rook")) {
+                newPiece = new Rook(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
+                newPiece.setMoved(true);
+                curr.removePiece(pawn);
+                curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
+                curr.blackPieces.add(newPiece);
+                break;
+            } else if (answer.equals("Bishop")) {
+                newPiece = new Bishop(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
+                newPiece.setMoved(true);
+                curr.removePiece(pawn);
+                curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
+                curr.blackPieces.add(newPiece);
+                break;
+            } else if (answer.equals("Knight")) {
+                newPiece = new Knight(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
+                newPiece.setMoved(true);
+                curr.removePiece(pawn);
+                curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
+                curr.blackPieces.add(newPiece);
+                break;
+            } else {
+                System.out.println("Choose Queen, Rook, Bishop, or Knight.");
+            }
+        }
+        return newPiece;
     }
 }
