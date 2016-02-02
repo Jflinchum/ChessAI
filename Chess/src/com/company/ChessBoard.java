@@ -12,6 +12,7 @@ public class ChessBoard {
     public ArrayList<ChessPiece> blackPieces = new ArrayList<>();
     //This is the piece that is in check
     public ChessPiece checkPiece = null;
+    public int turn = 0;
 
     /*
     Constructing the chessboard, which is an 8x8 2D-array of chess squares.
