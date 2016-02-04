@@ -198,4 +198,49 @@ public class ChessBoard {
         board[piece.getLocation().x][piece.getLocation().y].pieceHold = null;
         piece.setRemoved(true);
     }
+
+    /*
+    Checks if a move would put the pieces own king in check. Returns true if it does.
+     */
+    public boolean putsInCheck(ChessPiece piece, Location pos){
+        boolean check = false;
+        //Saving the parts of the board that will change
+        ChessPiece oldPiece = board[pos.x][pos.y].pieceHold;
+        Location oldLoc = new Location(piece.getLocation().x, piece.getLocation().y);
+        boolean moved = piece.getMoved();
+
+        //Changing the board
+        board[pos.x][pos.y].pieceHold = piece;
+        board[oldLoc.x][oldLoc.y].pieceHold = null;
+        piece.setLocation(pos.x, pos.y);
+        if(oldPiece != null)
+            oldPiece.setRemoved(true);
+        if(piece.getColor()){
+            for(ChessPiece enemy : blackPieces){
+                if(!enemy.getRemoved() && enemy.getClass() != King.class){
+                    enemy.generateMoves(this);
+                }
+            }
+        }
+        else{
+            for(ChessPiece enemy : whitePieces){
+                if(!enemy.getRemoved() && enemy.getClass() != King.class){
+                    enemy.generateMoves(this);
+                }
+            }
+        }
+        if(checkPiece != null && checkPiece.getColor() == piece.getColor())
+            check = true;
+
+        //Returning the board to its original state
+        board[pos.x][pos.y].pieceHold = oldPiece;
+        board[oldLoc.x][oldLoc.y].pieceHold = piece;
+        piece.setLocation(oldLoc.x, oldLoc.y);
+        if(oldPiece != null)
+            oldPiece.setRemoved(false);
+        piece.setMoved(moved);
+        checkPiece = null;
+
+        return check;
+    }
 }

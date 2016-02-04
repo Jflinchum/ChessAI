@@ -1,9 +1,11 @@
 package com.company;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.lang.ClassLoader;
+
 
 public class GameManager {
 
@@ -16,29 +18,71 @@ public class GameManager {
         Scanner input = new Scanner(System.in);
         String answer = "";
 
-        while(!answer.equals("Human") || !answer.equals("Computer")) {
-            System.out.println("Who is white? Human or Computer?");
+        while(!answer.equals("Human") || !answer.equals("AI")) {
+            System.out.println("Who is white? Human or AI?");
             answer = input.nextLine();
             if (answer.equals("Human")) {
                 white = new Human(true);
                 break;
             }
-            else if(answer.equals("Computer")){
-
-                break;
+            else if(answer.equals("AI")){
+                System.out.println("Which AI?");
+                answer = input.nextLine();
+                try {
+                    Class c = Class.forName("com.company." + answer);
+                    Constructor<Player> ctor = c.getDeclaredConstructor(boolean.class);
+                    white = ctor.newInstance(true);
+                    break;
+                }
+                catch(ClassNotFoundException e){
+                    System.err.println("AI not found.");
+                }
+                catch(InstantiationException e){
+                    System.err.println("Could not instantiate AI.");
+                }
+                catch(IllegalAccessException e){
+                    System.err.println("Could not access AI.");
+                }
+                catch(NoSuchMethodException e){
+                    System.err.println("No constructor for AI.");
+                }
+                catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
             }
         }
         answer = "";
-        while(!answer.equals("Human") || !answer.equals("Computer")) {
-            System.out.println("Who is black? Human or Computer?");
+        while(!answer.equals("Human") || !answer.equals("AI")) {
+            System.out.println("Who is black? Human or AI?");
             answer = input.nextLine();
             if (answer.equals("Human")) {
                 black = new Human(false);
                 break;
             }
-            else if(answer.equals("Computer")){
-
-                break;
+            else if(answer.equals("AI")){
+                System.out.println("Which AI?");
+                answer = input.nextLine();
+                try {
+                    Class c = Class.forName("com.company." + answer);
+                    Constructor<Player> ctor = c.getDeclaredConstructor(boolean.class);
+                    black = ctor.newInstance(false);
+                    break;
+                }
+                catch(ClassNotFoundException e){
+                    System.err.println("AI not found.");
+                }
+                catch(InstantiationException e){
+                    System.err.println("Could not instantiate AI.");
+                }
+                catch(IllegalAccessException e){
+                    System.err.println("Could not access AI.");
+                }
+                catch(NoSuchMethodException e){
+                    System.err.println("No constructor for AI.");
+                }
+                catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
             }
         }
         /*
@@ -51,6 +95,7 @@ public class GameManager {
         moves n,m
          */
         while(!answer.equals("stop")){
+            testboard.checkPiece=null;
             generateAllMoves(testboard);
             checkForCheck(testboard);
             enPassant(testboard);
@@ -117,32 +162,38 @@ public class GameManager {
                 if(whiteMove == null){
                     answer = "stop";
                 }
-                //Checking if the move is a castle
-                else if(whiteMove.piece.getClass() == King.class && testboard.board[whiteMove.pos.x][whiteMove.pos.y].pieceHold != null
-                        && testboard.board[whiteMove.pos.x][whiteMove.pos.y].pieceHold.getClass() == Rook.class){
-                    castle(testboard, whiteMove.piece.getLocation(), whiteMove.pos);
-                }
-                else if(whiteMove.piece.getClass() == Pawn.class && whiteMove.pos.y == 7){
-                    movePiece(testboard, whiteMove);
-                    white.upgradePawn(testboard, whiteMove.piece);
-                }
-                else{
-                    movePiece(testboard, whiteMove);
+                else {
+                    ChessPiece endPiece = testboard.board[whiteMove.pos.x][whiteMove.pos.y].pieceHold;
+                    //Checking if the move is a castle
+                    if (whiteMove.piece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
+                            && endPiece.getColor() == whiteMove.piece.getColor() && !endPiece.getRemoved()) {
+                        castle(testboard, whiteMove.piece.getLocation(), whiteMove.pos);
+                    } else if (whiteMove.piece.getClass() == Pawn.class && whiteMove.pos.y == 7) {
+                        movePiece(testboard, whiteMove);
+                        white.upgradePawn(testboard, whiteMove.piece);
+                    } else {
+                        movePiece(testboard, whiteMove);
+                    }
                 }
             }
             //Black's turn
             else{
-                Move blackMove = white.getMove(testboard);
+                Move blackMove = black.getMove(testboard);
                 if(blackMove == null){
                     answer = "stop";
                 }
-                //Checking if the move is a castle
-                else if(blackMove.piece.getClass() == King.class && testboard.board[blackMove.pos.x][blackMove.pos.y].pieceHold != null
-                        && testboard.board[blackMove.pos.x][blackMove.pos.y].pieceHold.getClass() == Rook.class){
-                    castle(testboard, blackMove.piece.getLocation(), blackMove.pos);
-                }
-                else{
-                    movePiece(testboard, blackMove);
+                else {
+                    ChessPiece endPiece = testboard.board[blackMove.pos.x][blackMove.pos.y].pieceHold;
+                    //Checking if the move is a castle
+                    if (blackMove.piece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
+                            && endPiece.getColor() == blackMove.piece.getColor() && !endPiece.getRemoved()) {
+                        castle(testboard, blackMove.piece.getLocation(), blackMove.pos);
+                    } else if (blackMove.piece.getClass() == Pawn.class && blackMove.pos.y == 7) {
+                        movePiece(testboard, blackMove);
+                        black.upgradePawn(testboard, blackMove.piece);
+                    } else {
+                        movePiece(testboard, blackMove);
+                    }
                 }
             }
         }
@@ -230,6 +281,7 @@ public class GameManager {
 
     /*
     Checks for if there is a king in check and removes moves from pieces that does not uncheck the king.
+    If there isn't a king in check, then it removes moves that would put it in check
      */
     private static void checkForCheck(ChessBoard curr){
         if(curr.checkPiece!=null){
@@ -253,6 +305,32 @@ public class GameManager {
                         for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
                             Location move = iterator.next();
                             if (!curr.removesCheck(piece, move)) {
+                                iterator.remove();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            if(curr.turn%2==0) {
+                for (ChessPiece piece : curr.whitePieces) {
+                    if (!piece.getRemoved()) {
+                        for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
+                            Location move = iterator.next();
+                            if (curr.putsInCheck(piece, move)) {
+                                iterator.remove();
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                for (ChessPiece piece : curr.blackPieces) {
+                    if (!piece.getRemoved()) {
+                        for (Iterator<Location> iterator = piece.getMoves().iterator(); iterator.hasNext();) {
+                            Location move = iterator.next();
+                            if (curr.putsInCheck(piece, move)) {
                                 iterator.remove();
                             }
                         }
