@@ -165,6 +165,9 @@ public class Human implements Player {
         return false;
     }
 
+    /*
+    A method that will check if it is possible to castle. Returns true if it can
+     */
     private boolean checkCastle(ChessBoard curr, Location kingPos, Location rookPos){
         //Which direction to check spaces for
         int direction = 1;

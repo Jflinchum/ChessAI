@@ -96,7 +96,61 @@ public class King implements ChessPiece {
             }
         }
 
+        //Generating castle moves
+        if(!moved){
+            Location rookLoc = new Location(0, pos.y);
+            ChessPiece rook = curr.board[rookLoc.x][rookLoc.y].pieceHold;
+            if(rook != null && rook.getClass() == Rook.class && rook.getColor() == white && checkCastle(curr, rookLoc)){
+                moves.add(rookLoc);
+            }
+            rookLoc = new Location(7, pos.y);
+            rook = curr.board[rookLoc.x][rookLoc.y].pieceHold;
+            if(rook != null && rook.getClass() == Rook.class && rook.getColor() == white && checkCastle(curr, rookLoc)){
+                moves.add(rookLoc);
+            }
+        }
+
         this.posMoves = moves;
+    }
+
+    /*
+    A method that will check if it is possible to castle. Returns true if it can
+     */
+    private boolean checkCastle(ChessBoard curr, Location rookPos){
+        //Which direction to check spaces for
+        int direction = 1;
+        if(pos.x > rookPos.x)
+            direction = -1;
+        //Checking the spaces in between the rook and king
+        for(int i = pos.x+direction; i != rookPos.x; i+=direction){
+            if(curr.board[i][pos.y].pieceHold != null){
+                return false;
+            }
+        }
+
+        //Creating the new location
+        Location kingNew = new Location(pos.x+(2*direction), pos.y);
+
+        //Making sure castleing doesn't put it in check.
+        if(curr.board[pos.x][pos.y].pieceHold.getColor()){
+            for(ChessPiece enemy : curr.blackPieces){
+                for(Location move : enemy.getMoves()){
+                    if(move.equals(kingNew)){
+                        return false;
+                    }
+                }
+            }
+        }
+        else{
+            for(ChessPiece enemy : curr.whitePieces){
+                for(Location move : enemy.getMoves()){
+                    if(move.equals(kingNew)){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     @Override

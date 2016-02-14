@@ -17,6 +17,7 @@ public class Chesshire implements Player {
     @Override
     public Move getMove(ChessBoard board) {
         ArrayList<Move> moves = new ArrayList<>();
+        //Getting all moves from the white or black pieces into an array list
         if(white){
             for(ChessPiece piece : board.whitePieces){
                 if(!piece.getRemoved()) {
@@ -36,7 +37,9 @@ public class Chesshire implements Player {
             }
         }
         Random rand = new Random();
-        return moves.get(rand.nextInt(moves.size()));
+        Move moveChoice = moves.get(rand.nextInt(moves.size()));
+        System.out.println(moveChoice);
+        return moveChoice;
     }
 
     @Override
@@ -45,7 +48,12 @@ public class Chesshire implements Player {
         newPiece.setMoved(true);
         board.removePiece(pawn);
         board.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-        board.blackPieces.add(newPiece);
+        if(white){
+            board.whitePieces.add(newPiece);
+        }
+        else{
+            board.blackPieces.add(newPiece);
+        }
         return newPiece;
     }
 }

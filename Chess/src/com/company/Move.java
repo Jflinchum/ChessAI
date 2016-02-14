@@ -16,4 +16,8 @@ public class Move {
         this.pos = pos;
     }
 
+    public String toString(){
+        return piece.toString() + ": " + pos.toString();
+    }
+
 }
