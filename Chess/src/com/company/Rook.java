@@ -65,7 +65,9 @@ public class Rook implements ChessPiece {
         //Right movement goes until it hits the chess board boundary or hits a chess piece. If the chess piece's
         //color is not equal to this pieces color, it adds that to the possible move
         int i = 1;
-        while(pos.x + i <= 7 && curr.board[pos.x + i][pos.y].pieceHold == null) {
+        while(pos.x + i <= 7) {
+            if(curr.board[pos.x+i][pos.y].pieceHold != null)
+                break;
             moves.add(new Location(pos.x + i, pos.y));
             i++;
         }
@@ -80,7 +82,9 @@ public class Rook implements ChessPiece {
 
         //Left movement goes until it hits the chess board boundary or hits a chess piece. If the chess piece's
         //color is not equal to this pieces color, it adds that to the possible move
-        while(pos.x - i >= 0 && curr.board[pos.x - i][pos.y].pieceHold == null) {
+        while(pos.x - i >= 0) {
+            if(curr.board[pos.x - i][pos.y].pieceHold != null)
+                break;
             moves.add(new Location(pos.x - i, pos.y));
             i++;
         }
@@ -94,7 +98,9 @@ public class Rook implements ChessPiece {
 
         //Up movement goes until it hits the chess board boundary or hits a chess piece. If the chess piece's
         //color is not equal to this pieces color, it adds that to the possible move
-        while(pos.y + i <= 7 && curr.board[pos.x][pos.y + i].pieceHold == null) {
+        while(pos.y + i <= 7) {
+            if(curr.board[pos.x][pos.y + i].pieceHold != null)
+                break;
             moves.add(new Location(pos.x, pos.y + i));
             i++;
         }
@@ -108,7 +114,10 @@ public class Rook implements ChessPiece {
 
         //Down movement goes until it hits the chess board boundary or hits a chess piece. If the chess piece's
         //color is not equal to this pieces color, it adds that to the possible move
-        while(pos.y - i >= 0 && curr.board[pos.x][pos.y - i].pieceHold == null) {
+        while(pos.y - i >= 0) {
+            if(curr.board[pos.x][pos.y - i].pieceHold != null){
+                break;
+            }
             moves.add(new Location(pos.x, pos.y - i));
             i++;
         }
