@@ -74,54 +74,37 @@ public class ChessBoard {
     }
 
     /*
+    MovePiece takes a piece, location, and a board
+     */
+    public void movePiece(Move currMove){
+        Location pos = currMove.pos;
+
+        ChessPiece piece = board[currMove.from.x][currMove.from.y].pieceHold;
+        board[currMove.from.x][currMove.from.y].pieceHold = null;
+        if(board[pos.x][pos.y].pieceHold != null)
+            removePiece(board[pos.x][pos.y].pieceHold);
+        board[pos.x][pos.y].pieceHold = piece;
+        piece.setLocation(pos.x, pos.y);
+    }
+
+    /*
     A deep copy function that copies everything from the given board into this one.
      */
-    public ChessBoard copy(ChessBoard copyFrom){
-        for(ChessPiece piece : copyFrom.whitePieces){
-            if(piece.getClass() == King.class) {
-                this.whitePieces.add(new King(true, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Queen.class){
-                this.whitePieces.add(new Queen(true, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Knight.class){
-                this.whitePieces.add(new Knight(true, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Bishop.class){
-                this.whitePieces.add(new Bishop(true, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Rook.class){
-                this.whitePieces.add(new Rook(true, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Pawn.class){
-                this.whitePieces.add(new Pawn(true, 0, 0).copy(piece));
-            }
+    public ChessBoard copy(){
+        ChessBoard newBoard = new ChessBoard();
+        for(ChessPiece piece : this.whitePieces){
+            ChessPiece tempPiece = piece.copy();
             if(!piece.getRemoved())
-                this.board[piece.getLocation().x][piece.getLocation().y].pieceHold = piece;
+                newBoard.board[piece.getLocation().x][piece.getLocation().y].pieceHold = tempPiece;
+            newBoard.whitePieces.add(tempPiece);
         }
-        for(ChessPiece piece : copyFrom.blackPieces){
-            if(piece.getClass() == King.class) {
-                this.blackPieces.add(new King(false, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Queen.class){
-                this.blackPieces.add(new Queen(false, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Knight.class){
-                this.blackPieces.add(new Knight(false, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Bishop.class){
-                this.blackPieces.add(new Bishop(false, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Rook.class){
-                this.blackPieces.add(new Rook(false, 0, 0).copy(piece));
-            }
-            else if(piece.getClass() == Pawn.class){
-                this.blackPieces.add(new Pawn(false, 0, 0).copy(piece));
-            }
+        for(ChessPiece piece : this.blackPieces){
+            ChessPiece tempPiece = piece.copy();
             if(!piece.getRemoved())
-                this.board[piece.getLocation().x][piece.getLocation().y].pieceHold = piece;
+                newBoard.board[piece.getLocation().x][piece.getLocation().y].pieceHold = tempPiece;
+            newBoard.blackPieces.add(tempPiece);
         }
-        return this;
+        return newBoard;
     }
 
     /*

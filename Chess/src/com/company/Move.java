@@ -5,19 +5,22 @@ package com.company;
  */
 public class Move {
 
-    ChessPiece piece;
+    Location from;
     Location pos;
 
     /*
     A move object that contains a piece and a location to move.
      */
-    public Move(ChessPiece piece, Location pos){
-        this.piece = piece;
+    public Move(Location from, Location pos){
+        this.from = from;
         this.pos = pos;
     }
 
     public String toString(){
-        return piece.toString() + ": " + pos.toString();
+        return from.toString() + " : " + pos.toString();
     }
 
+    public Move copy (){
+        return new Move(this.from.copy(), this.pos.copy());
+    }
 }

@@ -163,16 +163,17 @@ public class GameManager {
                     answer = "stop";
                 }
                 else {
+                    ChessPiece startPiece = testboard.board[whiteMove.from.x][whiteMove.from.y].pieceHold;
                     ChessPiece endPiece = testboard.board[whiteMove.pos.x][whiteMove.pos.y].pieceHold;
                     //Checking if the move is a castle
-                    if (whiteMove.piece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
-                            && endPiece.getColor() == whiteMove.piece.getColor() && !endPiece.getRemoved()) {
-                        castle(testboard, whiteMove.piece.getLocation(), whiteMove.pos);
-                    } else if (whiteMove.piece.getClass() == Pawn.class && whiteMove.pos.y == 7) {
-                        movePiece(testboard, whiteMove);
-                        white.upgradePawn(testboard, whiteMove.piece);
+                    if (startPiece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
+                            && endPiece.getColor() == startPiece.getColor() && !endPiece.getRemoved()) {
+                        castle(testboard, startPiece.getLocation(), whiteMove.pos);
+                    } else if (startPiece.getClass() == Pawn.class && whiteMove.pos.y == 7) {
+                        testboard.movePiece(whiteMove);
+                        white.upgradePawn(testboard, startPiece);
                     } else {
-                        movePiece(testboard, whiteMove);
+                        testboard.movePiece(whiteMove);
                     }
                 }
             }
@@ -183,16 +184,17 @@ public class GameManager {
                     answer = "stop";
                 }
                 else {
+                    ChessPiece startPiece = testboard.board[blackMove.from.x][blackMove.from.y].pieceHold;
                     ChessPiece endPiece = testboard.board[blackMove.pos.x][blackMove.pos.y].pieceHold;
                     //Checking if the move is a castle
-                    if (blackMove.piece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
-                            && endPiece.getColor() == blackMove.piece.getColor() && !endPiece.getRemoved()) {
-                        castle(testboard, blackMove.piece.getLocation(), blackMove.pos);
-                    } else if (blackMove.piece.getClass() == Pawn.class && blackMove.pos.y == 7) {
-                        movePiece(testboard, blackMove);
-                        black.upgradePawn(testboard, blackMove.piece);
+                    if (startPiece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
+                            && endPiece.getColor() == startPiece.getColor() && !endPiece.getRemoved()) {
+                        castle(testboard, startPiece.getLocation(), blackMove.pos);
+                    } else if (startPiece.getClass() == Pawn.class && blackMove.pos.y == 7) {
+                        testboard.movePiece(blackMove);
+                        black.upgradePawn(testboard, startPiece);
                     } else {
-                        movePiece(testboard, blackMove);
+                        testboard.movePiece(blackMove);
                     }
                 }
             }
@@ -222,19 +224,6 @@ public class GameManager {
         curr.board[rookPos.x][rookPos.y].pieceHold = null;
 
         return true;
-    }
-
-    /*
-    MovePiece takes a piece, location, and a board
-     */
-    private static void movePiece(ChessBoard curr, Move currMove){
-        Location pos = currMove.pos;
-
-        curr.board[currMove.piece.getLocation().x][currMove.piece.getLocation().y].pieceHold = null;
-        if(curr.board[pos.x][pos.y].pieceHold != null)
-            curr.removePiece(curr.board[pos.x][pos.y].pieceHold);
-        curr.board[pos.x][pos.y].pieceHold = currMove.piece;
-        currMove.piece.setLocation(pos.x, pos.y);
     }
 
     /*

@@ -18,9 +18,10 @@ public class Location {
     }
 
     public boolean equals(Location compare){
-        if(compare.x == this.x && compare.y == this.y)
-            return true;
-        else
-            return false;
+        return (compare.x == this.x && compare.y == this.y);
+    }
+
+    public Location copy (){
+        return new Location(this.x, this.y);
     }
 }
