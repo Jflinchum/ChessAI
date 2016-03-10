@@ -5,57 +5,14 @@ import java.util.ArrayList;
 /**
  * Created by jonathanflinchum on 12/28/15.
  */
-public class Queen implements ChessPiece {
-
-    public boolean white;
-    public Location pos = new Location(0, 0);
-    public ArrayList<Location> posMoves = new ArrayList<>();
-    public boolean removed = false;
-    public boolean moved = false;
+public class Queen extends ChessPiece {
 
     /*
     Constructor for the queen piece.
     Sets the color, x, and y positions
      */
     public Queen(boolean white, int x, int y){
-        this.white = white;
-        pos.x = x;
-        pos.y = y;
-        this.removed = false;
-        this.moved = false;
-    }
-
-    /*
-    Sets the x and y positions
-     */
-    @Override
-    public void setLocation(int x, int y) {
-        pos.x = x;
-        pos.y = y;
-        moved = true;
-    }
-
-    @Override
-    public void setMoved(boolean moved){
-        this.moved = moved;
-    }
-
-    @Override
-    public void setPosMoves(ArrayList<Location> moves){ this.posMoves = moves; }
-
-    @Override
-    public Location getLocation() {
-        return pos;
-    }
-
-    @Override
-    public boolean getColor(){
-        return this.white;
-    }
-
-    @Override
-    public ArrayList<Location> getMoves(){
-        return this.posMoves;
+        super(white, x, y);
     }
 
     @Override
@@ -179,22 +136,16 @@ public class Queen implements ChessPiece {
         this.posMoves = moves;
     }
 
-    public void setRemoved(boolean removed){ this.removed = removed; }
-
-    public boolean getRemoved(){ return this.removed; }
-
-    public boolean getMoved(){ return this.moved; }
-
-    public ChessPiece copy(ChessPiece pieceFrom){
-        this.pos.x = pieceFrom.getLocation().x;
-        this.pos.y = pieceFrom.getLocation().y;
-        this.moved = pieceFrom.getMoved();
-        this.removed = pieceFrom.getRemoved();
-        this.white = pieceFrom.getColor();
-        this.posMoves.addAll(pieceFrom.getMoves());
-        return this;
+    public ChessPiece copy(){
+        Queen newPiece = new Queen(this.getColor(), this.getLocation().x, this.getLocation().y);
+        newPiece.pos.x = this.getLocation().x;
+        newPiece.pos.y = this.getLocation().y;
+        newPiece.moved = this.getMoved();
+        newPiece.removed = this.getRemoved();
+        newPiece.white = this.getColor();
+        newPiece.posMoves.addAll(this.posMoves);
+        return newPiece;
     }
-
 
     /*
     Prints out the symbol of the chess piece. Upper case is white, lower case is black

@@ -1,5 +1,6 @@
 package com.company;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
@@ -16,6 +17,8 @@ public class Chesshire implements Player {
     private int nWeight = 3;
     private int bWeight = 3;
     private int pWeight = 1;
+    private double mobWeight = 0.1;
+    private int depth = 5;
 
     public Chesshire(boolean white){
         this.white = white;
@@ -28,6 +31,7 @@ public class Chesshire implements Player {
         if(white){
             for(ChessPiece piece : board.whitePieces){
                 if(!piece.getRemoved()) {
+                    piece.generateMoves(board);
                     for (Location move : piece.getMoves()) {
                         moves.add(new Move(piece.getLocation(), move));
                     }
@@ -36,6 +40,7 @@ public class Chesshire implements Player {
         }
         else{
             for(ChessPiece piece : board.blackPieces){
+                piece.generateMoves(board);
                 if(!piece.getRemoved()) {
                     for (Location move : piece.getMoves()) {
                         moves.add(new Move(piece.getLocation(), move));
@@ -47,18 +52,18 @@ public class Chesshire implements Player {
         ChessBoard copy = board.copy();
         Move moveChoice = moves.get(0);
         copy.movePiece(moveChoice.copy());
-        float moveWeight = evaluateBoard(copy);
+        double moveWeight = evaluateBoard(copy, this.white);
         for(Move move : moves){
             copy = board.copy();
             copy.movePiece(move.copy());
-            float moveEval = evaluateBoard(copy);
+            double moveEval = evalFunction(copy, depth);
             if(moveEval > moveWeight){
                 moveChoice = move;
                 moveWeight = moveEval;
             }
         }
 
-        System.out.println(moveChoice);
+        System.out.println(moveChoice + " " + moveWeight);
         return moveChoice;
     }
 
@@ -77,8 +82,8 @@ public class Chesshire implements Player {
         return newPiece;
     }
 
-    public float evaluateBoard(ChessBoard board) {
-        float eval = 0;
+    public double evaluateBoard(ChessBoard board, boolean whoToMove) {
+        double eval = 0;
         int wK = 0;
         int bK = 0;
         int wQ = 0;
@@ -91,8 +96,11 @@ public class Chesshire implements Player {
         int bB = 0;
         int wP = 0;
         int bP = 0;
+        int wMoves = 0;
+        int bMoves = 0;
 
         for (ChessPiece piece : board.whitePieces){
+            piece.generateMoves(board);
             if(!piece.getRemoved()){
                 if(piece.getClass() == King.class)
                     wK++;
@@ -106,10 +114,14 @@ public class Chesshire implements Player {
                     wB++;
                 if(piece.getClass() == Pawn.class)
                     wP++;
+                for(int i = 0; i < piece.getMoves().size(); i++) {
+                    wMoves++;
+                }
             }
         }
 
         for (ChessPiece piece : board.blackPieces){
+            piece.generateMoves(board);
             if(!piece.getRemoved()){
                 if(piece.getClass() == King.class)
                     bK++;
@@ -123,16 +135,65 @@ public class Chesshire implements Player {
                     bB++;
                 if(piece.getClass() == Pawn.class)
                     bP++;
+                for(int i = 0; i < piece.getMoves().size(); i++) {
+                    bMoves++;
+                }
             }
         }
 
+        //Material
         eval += (kWeight*(wK-bK)
                 + qWeight*(wQ-bQ)
                 + rWeight*(wR-bR)
                 + nWeight*(wN-bN)
                 + bWeight*(wB-bB)
                 + pWeight*(wP-bP));
+        //Mobility
+        eval += mobWeight * (wMoves-bMoves);
 
-        return eval * (this.white ? 1 : -1);
+        return eval * (whoToMove ? 1 : -1);
+    }
+
+    private double evalFunction(ChessBoard board, int depth){
+        ArrayList<Move> moves = new ArrayList<>();
+        //Getting all moves from the white or black pieces into an array list
+        if(board.turn%2==1){
+            for(ChessPiece piece : board.whitePieces){
+                if(!piece.getRemoved()) {
+                    piece.generateMoves(board);
+                    for (Location move : piece.getMoves()) {
+                        moves.add(new Move(piece.getLocation(), move));
+                    }
+                }
+            }
+        }
+        else{
+            for(ChessPiece piece : board.blackPieces){
+                if(!piece.getRemoved()) {
+                    piece.generateMoves(board);
+                    for (Location move : piece.getMoves()) {
+                        moves.add(new Move(piece.getLocation(), move));
+                    }
+                }
+            }
+        }
+
+        ChessBoard copy = board.copy();
+        Move moveChoice = moves.get(0);
+        copy.movePiece(moveChoice.copy());
+        double totalEval = evaluateBoard(copy, board.turn%2==1);
+        for(Move move : moves){
+            copy = board.copy();
+            copy.movePiece(move.copy());
+            double moveEval = evaluateBoard(copy, board.turn%2==1);
+            copy.turn++;
+            if(depth <= 0){
+                moveEval += evalFunction(copy, depth--);
+            }
+            if(moveEval > totalEval){
+                totalEval = moveEval;
+            }
+        }
+        return totalEval;
     }
 }

@@ -5,59 +5,14 @@ import java.util.ArrayList;
 /**
  * Created by jonathanflinchum on 12/8/15.
  */
-public class King implements ChessPiece {
-
-    public boolean white;
-    public Location pos = new Location(0, 0);
-    public boolean moved = false;
-    public ArrayList<Location> posMoves = new ArrayList<>();
-    public boolean removed = false;
+public class King extends ChessPiece {
 
     /*
     Constructor for the king piece.
     Sets the color, x, and y positions
      */
     public King(boolean white, int x, int y){
-        this.white = white;
-        pos.x = x;
-        pos.y = y;
-        this.moved = false;
-    }
-
-    /*
-    Sets the x and y positions
-     */
-    @Override
-    public void setLocation(int x, int y) {
-        pos.x = x;
-        pos.y = y;
-        this.moved = true;
-    }
-
-    @Override
-    public void setMoved(boolean moved){
-        this.moved = moved;
-    }
-
-    @Override
-    public void setPosMoves(ArrayList<Location> moves){ this.posMoves = moves; }
-
-    @Override
-    public Location getLocation() {
-        return this.pos;
-    }
-
-    @Override
-    public boolean getColor(){
-        return this.white;
-    }
-
-    /*
-    The king can move orthogonally and diagonally 1 square, unless that square is next to a king.
-     */
-    @Override
-    public ArrayList<Location> getMoves(){
-        return this.posMoves;
+        super(white, x, y);
     }
 
     @Override
@@ -153,24 +108,15 @@ public class King implements ChessPiece {
         return true;
     }
 
-    @Override
-    public void setRemoved(boolean removed){ this.removed = removed; }
-
-    @Override
-    public boolean getRemoved(){ return this.removed; }
-
-    @Override
-    public boolean getMoved(){ return this.moved; }
-
-    @Override
-    public ChessPiece copy(ChessPiece pieceFrom){
-        this.pos.x = pieceFrom.getLocation().x;
-        this.pos.y = pieceFrom.getLocation().y;
-        this.moved = pieceFrom.getMoved();
-        this.removed = pieceFrom.getRemoved();
-        this.white = pieceFrom.getColor();
-        this.posMoves.addAll(pieceFrom.getMoves());
-        return this;
+    public ChessPiece copy(){
+        King newPiece = new King(this.getColor(), this.getLocation().x, this.getLocation().y);
+        newPiece.pos.x = this.getLocation().x;
+        newPiece.pos.y = this.getLocation().y;
+        newPiece.moved = this.getMoved();
+        newPiece.removed = this.getRemoved();
+        newPiece.white = this.getColor();
+        newPiece.posMoves.addAll(this.posMoves);
+        return newPiece;
     }
 
     /*
@@ -182,6 +128,4 @@ public class King implements ChessPiece {
         else
             return "k";
     }
-
-
 }
