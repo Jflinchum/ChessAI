@@ -25,27 +25,20 @@ public class King extends ChessPiece {
                     Location checkLocation = new Location(pos.x+i, pos.y+j);
                     if(pos.x+i <= 7 && pos.x+i >= 0 && pos.y+j <= 7 && pos.y+j >= 0
                             && curr.CheckSquare(this, checkLocation)){
-                        ChessPiece oldPiece = curr.board[pos.x+i][pos.y+j].pieceHold;
-                        //Saving the old check piece, because it gets messed up here
-                        ChessPiece oldCheckPiece = curr.checkPiece;
                         boolean check = false;
-                        curr.board[pos.x+i][pos.y+j].pieceHold = this;
                         for(ChessPiece piece : (this.getColor() ? curr.blackPieces : curr.whitePieces)){
-                            piece.generateMoves(curr);
                             for(Location move : piece.getMoves()){
                                 if(move.equals(checkLocation)){
                                     check = true;
                                     break;
                                 }
                             }
-                            if(check)
+                            if(check) {
                                 break;
+                            }
                         }
                         if(!check)
                             moves.add(new Location(pos.x+i, pos.y+j));
-                        //Restoring changes
-                        curr.board[pos.x+i][pos.y+j].pieceHold = oldPiece;
-                        curr.checkPiece = oldCheckPiece;
                     }
                 }
             }
@@ -55,7 +48,7 @@ public class King extends ChessPiece {
         if(!moved){
             Location rookLoc = new Location(0, pos.y);
             ChessPiece rook = curr.board[rookLoc.x][rookLoc.y].pieceHold;
-            if(rook != null && rook.getClass() == Rook.class && rook.getColor() == white && checkCastle(curr, rookLoc)){
+            if(rook != null && rook.getClass() == Rook.class && rook.getColor() == white && checkCastle(curr, rookLoc)) {
                 moves.add(rookLoc);
             }
             rookLoc = new Location(7, pos.y);

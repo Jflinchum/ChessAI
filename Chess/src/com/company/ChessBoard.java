@@ -29,7 +29,10 @@ public class ChessBoard {
     The normal chess board setup with white on the bottom and black at the top.
      */
     public void NormSetUp(){
-        whitePieces.add(board[4][0].pieceHold = new King(true, 4, 0));
+        for(int i = 0; i < 8; i++) {
+            whitePieces.add(board[i][1].pieceHold = new Pawn(true, i, 1));
+            blackPieces.add(board[i][6].pieceHold = new Pawn(false, i, 6));
+        }
         whitePieces.add(board[3][0].pieceHold = new Queen(true, 3, 0));
         whitePieces.add(board[2][0].pieceHold = new Bishop(true, 2, 0));
         whitePieces.add(board[5][0].pieceHold = new Bishop(true, 5, 0));
@@ -37,8 +40,8 @@ public class ChessBoard {
         whitePieces.add(board[6][0].pieceHold = new Knight(true, 6, 0));
         whitePieces.add(board[0][0].pieceHold = new Rook(true, 0, 0));
         whitePieces.add(board[7][0].pieceHold = new Rook(true, 7, 0));
+        whitePieces.add(board[4][0].pieceHold = new King(true, 4, 0));
 
-        blackPieces.add(board[3][7].pieceHold = new King(false, 3, 7));
         blackPieces.add(board[4][7].pieceHold = new Queen(false, 4, 7));
         blackPieces.add(board[2][7].pieceHold = new Bishop(false, 2, 7));
         blackPieces.add(board[5][7].pieceHold = new Bishop(false, 5, 7));
@@ -46,10 +49,8 @@ public class ChessBoard {
         blackPieces.add(board[6][7].pieceHold = new Knight(false, 6, 7));
         blackPieces.add(board[0][7].pieceHold = new Rook(false, 0, 7));
         blackPieces.add(board[7][7].pieceHold = new Rook(false, 7, 7));
-        for(int i = 0; i < 8; i++) {
-            whitePieces.add(board[i][1].pieceHold = new Pawn(true, i, 1));
-            blackPieces.add(board[i][6].pieceHold = new Pawn(false, i, 6));
-        }
+        blackPieces.add(board[3][7].pieceHold = new King(false, 3, 7));
+
         /*
         Must generate all moves after set up
          */
@@ -103,6 +104,10 @@ public class ChessBoard {
             if(!piece.getRemoved())
                 newBoard.board[piece.getLocation().x][piece.getLocation().y].pieceHold = tempPiece;
             newBoard.blackPieces.add(tempPiece);
+        }
+        newBoard.turn = this.turn;
+        if(this.checkPiece!=null){
+            newBoard.checkPiece = this.checkPiece.copy();
         }
         return newBoard;
     }
