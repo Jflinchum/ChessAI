@@ -42,14 +42,14 @@ public class ChessBoard {
         whitePieces.add(board[7][0].pieceHold = new Rook(true, 7, 0));
         whitePieces.add(board[4][0].pieceHold = new King(true, 4, 0));
 
-        blackPieces.add(board[4][7].pieceHold = new Queen(false, 4, 7));
+        blackPieces.add(board[3][7].pieceHold = new Queen(false, 3, 7));
         blackPieces.add(board[2][7].pieceHold = new Bishop(false, 2, 7));
         blackPieces.add(board[5][7].pieceHold = new Bishop(false, 5, 7));
         blackPieces.add(board[1][7].pieceHold = new Knight(false, 1, 7));
         blackPieces.add(board[6][7].pieceHold = new Knight(false, 6, 7));
         blackPieces.add(board[0][7].pieceHold = new Rook(false, 0, 7));
         blackPieces.add(board[7][7].pieceHold = new Rook(false, 7, 7));
-        blackPieces.add(board[3][7].pieceHold = new King(false, 3, 7));
+        blackPieces.add(board[4][7].pieceHold = new King(false, 4, 7));
 
         /*
         Must generate all moves after set up
@@ -136,47 +136,22 @@ public class ChessBoard {
     after the check.
      */
     public boolean removesCheck(ChessPiece piece, Location pos){
-        boolean check = true;
-        //Saving the parts of the board that will change
-        ChessPiece oldPiece = board[pos.x][pos.y].pieceHold;
-        Location oldLoc = new Location(piece.getLocation().x, piece.getLocation().y);
-        boolean moved = piece.getMoved();
-        ChessPiece oldCheckPiece = checkPiece;
-
-        //Changing the board
-        board[pos.x][pos.y].pieceHold = piece;
-        board[oldLoc.x][oldLoc.y].pieceHold = null;
-        checkPiece = null;
-        piece.setLocation(pos.x, pos.y);
-        if(oldPiece != null)
-            oldPiece.setRemoved(true);
+        ChessBoard copy = this.copy();
+        copy.movePiece(new Move(piece.getLocation(), pos));
+        copy.checkPiece=null;
         if(piece.getColor()){
-            for(ChessPiece enemy : blackPieces){
-                if(!enemy.getRemoved() && enemy.getClass() != King.class){
-                    enemy.generateMoves(this);
-                }
+            for(ChessPiece enemy : copy.blackPieces){
+                if(!enemy.getRemoved() && enemy.getClass() != King.class)
+                    enemy.generateMoves(copy);
             }
         }
         else{
-            for(ChessPiece enemy : whitePieces){
-                if(!enemy.getRemoved() && enemy.getClass() != King.class){
-                    enemy.generateMoves(this);
-                }
+            for(ChessPiece enemy : copy.whitePieces){
+                if(!enemy.getRemoved() && enemy.getClass() != King.class)
+                    enemy.generateMoves(copy);
             }
         }
-        if(checkPiece == null || checkPiece.getColor() != piece.getColor())
-            check = false;
-
-        //Returning the board to its original state
-        board[pos.x][pos.y].pieceHold = oldPiece;
-        board[oldLoc.x][oldLoc.y].pieceHold = piece;
-        piece.setLocation(oldLoc.x, oldLoc.y);
-        if(oldPiece != null)
-            oldPiece.setRemoved(false);
-        piece.setMoved(moved);
-        checkPiece = oldCheckPiece;
-
-        return !check;
+        return (copy.checkPiece == null || copy.checkPiece.getColor() != piece.getColor());
     }
 
     /*
