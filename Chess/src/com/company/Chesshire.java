@@ -1,7 +1,5 @@
 package com.company;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 
@@ -18,7 +16,67 @@ public class Chesshire implements Player {
     private int bWeight = 3;
     private int pWeight = 1;
     private double mobWeight = 0.1;
-    private int depth = 5;
+    private int depth = 10;
+
+    public double[][] kSquareTable =
+                    {{ -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
+                    {  -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
+                    {  -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
+                    {  -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
+                    {  -.2, -.3, -.3, -.4, -.4, -.3, -.3, -.2},
+                    {  -.1, -.2, -.2, -.2, -.2, -.2,-.05, -.1},
+                    {   .2,  .2,   0,   0,   0,   0,  .1,  .2},
+                    {   .2,  .3,  .1,   0,   0,  .1,  .3,  .2}};
+
+    public double[][] qSquareTable =
+                    {{ -.2, -.1, -.1, -.05, -.05, -.1, -.1,  -.2},
+                    {  -.1,   0,   0,    0,    0,   0,   0,  -.1},
+                    {  -.1,   0, .05,  .05,  .05, .05,   0,  -.1},
+                    { -.05,   0, .05,  .05,  .05, .05,   0, -.05},
+                    {    0,   0, .05,  .05,  .05, .05,   0, -.05},
+                    {  -.1, .05, .05,  .05,  .05, .05,   0,  -.1},
+                    {  -.1,   0, .05,    0,    0,   0,   0,  -.1},
+                    {  -.2, -.1, -.1, -.05, -.05, -.1, -.1,  -.2}};
+
+    public double[][] rSquareTable =
+                    {{   0,  0,  0,   0,   0,  0,  0,    0},
+                    {  .05, .1, .1,  .1,  .1, .1, .1,  .05},
+                    { -.05,  0,  0,   0,   0,  0,  0, -.05},
+                    { -.05,  0,  0,   0,   0,  0,  0, -.05},
+                    { -.05,  0,  0,   0,   0,  0,  0, -.05},
+                    { -.05,  0,  0,   0,   0,  0,  0, -.05},
+                    { -.05,  0,  0,   0,   0,  0,  0, -.05},
+                    {    0,  0,  0, .05, .05,  0,  0,    0}};
+
+    public double[][] nSquareTable =
+                    {{-.5, -.4, -.3, -.3, -.3, -.3, -.4, -.5},
+                    { -.4, -.2,   0,   0,   0,   0, -.2, -.4},
+                    { -.3,   0,  .1, .15, .15,  .1,   0, -.3},
+                    { -.3, .05, .15,  .2,  .2, .15, .05, -.3},
+                    { -.3,   0, .15,  .2,  .2, .15,   0, -.3},
+                    { -.3, .05,  .1, .15, .15,  .1, .05, -.3},
+                    { -.4, -.2,   0, .05, .05,   0, -.2, -.4},
+                    { -.5, -.4, -.3, -.3, -.3, -.3, -.4, -.5}};
+
+    public double[][] bSquareTable =
+                    {{-.2, -.1,-.1,-.1,-.1,-.1, -.1,-.2},
+                    { -.1,   0,  0,  0,  0,  0,   0,-.1},
+                    { -.1,   0,.05, .1, .1,.05,   0,-.1},
+                    { -.1, .05,.05, .1, .1,.05, .05,-.1},
+                    { -.1,   0, .1, .1, .1, .1,   0,-.1},
+                    { -.1,  .1, .1, .1, .1, .1,  .1, -.1},
+                    { -.1, .05,  0,  0,  0,  0, .05,-.1},
+                    { -.2, -.1,-.1,-.1,-.1,-.1, -.1,-.2}};
+
+    public double[][] pSquareTable =
+                    {{ 0,   0,  0,  0,  0,  0,   0,  0},
+                    { .5,  .5, .5, .5, .5, .5,  .5, .5},
+                    { .1,  .1, .2, .3, .3, .2,  .1, .1},
+                    {.05, .05, .1,.25,.25, .1, .05,.05},
+                    {  0,   0,  0, .2, .2,  0,   0,  0},
+                    {.05,-.05,-.1,  0,  0,-.1,-.05,.05},
+                    {.05,  .1, .1,-.2,-.2, .1,  .1,.05},
+                    {  0,   0,  0,  0,  0,  0,   0,  0}};
 
     public Chesshire(boolean white) {
         this.white = white;
@@ -57,7 +115,6 @@ public class Chesshire implements Player {
             double moveEval = evaluateBoard(copy, this.white);
             copy.turn++;
             moveEval += evalFunction(copy, --depth);
-            System.out.println(move + " " + moveEval);
             if (moveEval > moveWeight) {
                 moveChoice = move;
                 moveWeight = moveEval;
@@ -140,38 +197,66 @@ public class Chesshire implements Player {
         for (ChessPiece piece : board.whitePieces) {
             piece.generateMoves(board);
             if (!piece.getRemoved()) {
-                if (piece.getClass() == King.class)
+                if (piece.getClass() == King.class) {
                     wK++;
-                if (piece.getClass() == Queen.class)
+                    eval += kSquareTable[piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Queen.class) {
                     wQ++;
-                if (piece.getClass() == Rook.class)
+                    eval += qSquareTable[piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Rook.class) {
                     wR++;
-                if (piece.getClass() == Knight.class)
+                    eval += rSquareTable[piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Knight.class) {
                     wN++;
-                if (piece.getClass() == Bishop.class)
+                    eval += nSquareTable[piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Bishop.class) {
                     wB++;
-                if (piece.getClass() == Pawn.class)
+                    eval += bSquareTable[piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Pawn.class) {
                     wP++;
-                wMoves += piece.getMoves().size();
+                    eval += pSquareTable[piece.getLocation().y][piece.getLocation().x];
+                }
+                if(piece.getClass() != Queen.class ) {
+                    wMoves += piece.getMoves().size();
+                }
             }
         }
 
         for (ChessPiece piece : board.blackPieces) {
             piece.generateMoves(board);
             if (!piece.getRemoved()) {
-                if (piece.getClass() == King.class)
+                if (piece.getClass() == King.class) {
                     bK++;
-                if (piece.getClass() == Queen.class)
+                    eval += kSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Queen.class) {
                     bQ++;
-                if (piece.getClass() == Rook.class)
+                    eval += qSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Rook.class) {
                     bR++;
-                if (piece.getClass() == Knight.class)
+                    eval += bSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Knight.class) {
                     bN++;
-                if (piece.getClass() == Bishop.class)
+                    eval += nSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Bishop.class) {
                     bB++;
-                if (piece.getClass() == Pawn.class)
+                    eval += bSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                }
+                if (piece.getClass() == Pawn.class) {
                     bP++;
-                bMoves += piece.getMoves().size();
+                    eval += pSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                }
+                if(piece.getClass() != Queen.class ) {
+                    bMoves += piece.getMoves().size();
+                }
             }
         }
 
