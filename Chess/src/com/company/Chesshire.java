@@ -3,6 +3,7 @@ package com.company;
 import java.util.ArrayList;
 
 
+
 /**
  * Created by jonathanflinchum on 2/2/16.
  */
@@ -16,7 +17,7 @@ public class Chesshire implements Player {
     private int bWeight = 3;
     private int pWeight = 1;
     private double mobWeight = 0.1;
-    private int depth = 10;
+    private int maxDepth = 15;
 
     public double[][] kSquareTable =
                     {{ -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
@@ -72,7 +73,7 @@ public class Chesshire implements Player {
                     {{ 0,   0,  0,  0,  0,  0,   0,  0},
                     { .5,  .5, .5, .5, .5, .5,  .5, .5},
                     { .1,  .1, .2, .3, .3, .2,  .1, .1},
-                    {.05, .05, .1,.25,.25, .1, .05,.05},
+                    {.05, .05, .1, .5, .5, .1, .05,.05},
                     {  0,   0,  0, .2, .2,  0,   0,  0},
                     {.05,-.05,-.1,  0,  0,-.1,-.05,.05},
                     {.05,  .1, .1,-.2,-.2, .1,  .1,.05},
@@ -84,6 +85,7 @@ public class Chesshire implements Player {
 
     @Override
     public Move getMove(ChessBoard board) {
+        long timeBefore = -System.currentTimeMillis();
         ArrayList<Move> moves = new ArrayList<>();
         //Getting all moves from the white or black pieces into an array list
         if (white) {
@@ -111,22 +113,33 @@ public class Chesshire implements Player {
         double moveWeight = -100000;
         for (Move move : moves) {
             copy = board.copy();
-            copy.movePiece(move.copy());
-            double moveEval = evaluateBoard(copy, this.white);
+            ChessPiece movePiece = copy.board[move.from.x][move.from.y].pieceHold;
+            if(movePiece != null && movePiece.getClass() == King.class && !movePiece.getMoved() && move.pos.y == (movePiece.white ? 0 : 7) && (move.pos.x == 0 || move.pos.x == 7)){
+                copy.castle(move.from, move.pos);
+            }
+            else{
+                copy.movePiece(move.copy());
+            }
+            if(movePiece != null && move.pos.y == (movePiece.white ? 7 : 0) && movePiece.getClass() == Pawn.class){
+                upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold);
+            }
+
+            double moveEval = evaluateBoard(copy, copy.turn%2==1);
             copy.turn++;
-            moveEval += evalFunction(copy, --depth);
+            moveEval += evalFunction(copy, maxDepth-1);
             if (moveEval > moveWeight) {
                 moveChoice = move;
                 moveWeight = moveEval;
             }
         }
 
-        System.out.println(moveChoice + " " + moveWeight);
+        System.out.println(moveChoice + " " + moveWeight + " " + (System.currentTimeMillis() + timeBefore));
         return moveChoice;
     }
 
     private double evalFunction(ChessBoard board, int depth) {
         ArrayList<Move> moves = new ArrayList<>();
+        float tempo = 0;
         //Getting all moves from the white or black pieces into an array list
         if (board.turn % 2 == 1) {
             for (ChessPiece piece : board.whitePieces) {
@@ -151,8 +164,23 @@ public class Chesshire implements Player {
         double moveWeight = -1000000;
         for (Move move : moves) {
             copy = board.copy();
-            copy.movePiece(move.copy());
-            double moveEval = evaluateBoard(copy, copy.turn%2==1);
+            ChessPiece movePiece = copy.board[move.from.x][move.from.y].pieceHold;
+            if(movePiece != null && movePiece.getClass() == King.class && !movePiece.getMoved() && move.pos.y == (movePiece.white ? 0 : 7) && (move.pos.x == 0 || move.pos.x == 7)){
+                copy.castle(move.from, move.pos);
+            }
+            else {
+                copy.movePiece(move.copy());
+            }
+            if(movePiece != null && move.pos.y == (movePiece.white ? 7 : 0) && movePiece.getClass() == Pawn.class){
+                upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold);
+            }
+            double moveEval = evaluateBoard(copy, board.turn%2==1);
+            if(moveEval > 0){
+                tempo+=mobWeight/2;
+            }
+            else{
+                tempo-=mobWeight/2;
+            }
             copy.turn++;
             if(depth > 0)
                 moveEval += evalFunction(copy, --depth);
@@ -160,7 +188,7 @@ public class Chesshire implements Player {
                 moveWeight = moveEval;
             }
         }
-        return moveWeight * ( this.white == (board.turn%2==1) ? 1 : -1);
+        return -(moveWeight+tempo);
     }
 
     @Override
@@ -240,7 +268,7 @@ public class Chesshire implements Player {
                 }
                 if (piece.getClass() == Rook.class) {
                     bR++;
-                    eval += bSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                    eval += rSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                 }
                 if (piece.getClass() == Knight.class) {
                     bN++;

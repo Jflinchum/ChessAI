@@ -206,4 +206,31 @@ public class ChessBoard {
 
         return check;
     }
+
+    /*
+    Castle will castle two pieces if it doesn't have any pieces in between and returns true if it does
+     */
+    public boolean castle(Location kingPos, Location rookPos){
+        //Which direction to check spaces for
+        int direction = 1;
+        if(kingPos.x > rookPos.x)
+            direction = -1;
+
+        //Creating the new locations
+        Location kingNew = new Location(kingPos.x+(2*direction), kingPos.y);
+        Location rookNew = new Location(kingPos.x+direction, kingPos.y);
+        ChessPiece king = board[kingPos.x][kingPos.y].pieceHold;
+        ChessPiece rook = board[rookPos.x][rookPos.y].pieceHold;
+
+
+        //Setting the pieces to the new locations
+        board[kingPos.x][kingPos.y].pieceHold = null;
+        king.setLocation(kingNew.x, kingNew.y);
+        board[kingNew.x][kingNew.y].pieceHold = king;
+        board[rookPos.x][rookPos.y].pieceHold = null;
+        rook.setLocation(rookNew.x, rookNew.y);
+        board[rookNew.x][rookNew.y].pieceHold = rook;
+
+        return true;
+    }
 }

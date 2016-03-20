@@ -217,28 +217,48 @@ public class Human implements Player {
                 newPiece.setMoved(true);
                 curr.removePiece(pawn);
                 curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                curr.blackPieces.add(newPiece);
+                if(pawn.getColor()){
+                    curr.whitePieces.add(newPiece);
+                }
+                else{
+                    curr.blackPieces.add(newPiece);
+                }
                 break;
             } else if (answer.equals("Rook")) {
                 newPiece = new Rook(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
                 newPiece.setMoved(true);
                 curr.removePiece(pawn);
                 curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                curr.blackPieces.add(newPiece);
+                if(pawn.getColor()){
+                    curr.whitePieces.add(newPiece);
+                }
+                else{
+                    curr.blackPieces.add(newPiece);
+                }
                 break;
             } else if (answer.equals("Bishop")) {
                 newPiece = new Bishop(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
                 newPiece.setMoved(true);
                 curr.removePiece(pawn);
                 curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                curr.blackPieces.add(newPiece);
+                if(pawn.getColor()){
+                    curr.whitePieces.add(newPiece);
+                }
+                else{
+                    curr.blackPieces.add(newPiece);
+                }
                 break;
             } else if (answer.equals("Knight")) {
                 newPiece = new Knight(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
                 newPiece.setMoved(true);
                 curr.removePiece(pawn);
                 curr.board[newPiece.getLocation().x][newPiece.getLocation().y].pieceHold = newPiece;
-                curr.blackPieces.add(newPiece);
+                if(pawn.getColor()){
+                    curr.whitePieces.add(newPiece);
+                }
+                else{
+                    curr.blackPieces.add(newPiece);
+                }
                 break;
             } else {
                 System.out.println("Choose Queen, Rook, Bishop, or Knight.");

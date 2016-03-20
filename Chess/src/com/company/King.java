@@ -27,14 +27,16 @@ public class King extends ChessPiece {
                             && curr.CheckSquare(this, checkLocation)){
                         boolean check = false;
                         for(ChessPiece piece : (this.getColor() ? curr.blackPieces : curr.whitePieces)){
-                            for(Location move : piece.getMoves()){
-                                if(move.equals(checkLocation)){
-                                    check = true;
+                            if(!piece.getRemoved()) {
+                                for (Location move : piece.getMoves()) {
+                                    if (move.equals(checkLocation)) {
+                                        check = true;
+                                        break;
+                                    }
+                                }
+                                if (check) {
                                     break;
                                 }
-                            }
-                            if(check) {
-                                break;
                             }
                         }
                         if(!check)
@@ -80,7 +82,7 @@ public class King extends ChessPiece {
         Location kingNew = new Location(pos.x+(2*direction), pos.y);
 
         //Making sure castleing doesn't put it in check.
-        if(curr.board[pos.x][pos.y].pieceHold.getColor()){
+        if(curr.board[pos.x][pos.y].pieceHold != null && curr.board[pos.x][pos.y].pieceHold.getColor()){
             for(ChessPiece enemy : curr.blackPieces){
                 for(Location move : enemy.getMoves()){
                     if(move.equals(kingNew)){
@@ -89,7 +91,7 @@ public class King extends ChessPiece {
                 }
             }
         }
-        else{
+        else if(curr.board[pos.x][pos.y].pieceHold != null){
             for(ChessPiece enemy : curr.whitePieces){
                 for(Location move : enemy.getMoves()){
                     if(move.equals(kingNew)){

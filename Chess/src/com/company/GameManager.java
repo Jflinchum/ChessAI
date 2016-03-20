@@ -168,7 +168,7 @@ public class GameManager {
                     //Checking if the move is a castle
                     if (startPiece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
                             && endPiece.getColor() == startPiece.getColor() && !endPiece.getRemoved()) {
-                        castle(testboard, startPiece.getLocation(), whiteMove.pos);
+                        testboard.castle(startPiece.getLocation(), whiteMove.pos);
                     } else if (startPiece.getClass() == Pawn.class && whiteMove.pos.y == 7) {
                         testboard.movePiece(whiteMove);
                         white.upgradePawn(testboard, startPiece);
@@ -189,8 +189,8 @@ public class GameManager {
                     //Checking if the move is a castle
                     if (startPiece.getClass() == King.class && endPiece != null && endPiece.getClass() == Rook.class
                             && endPiece.getColor() == startPiece.getColor() && !endPiece.getRemoved()) {
-                        castle(testboard, startPiece.getLocation(), blackMove.pos);
-                    } else if (startPiece.getClass() == Pawn.class && blackMove.pos.y == 7) {
+                        testboard.castle(startPiece.getLocation(), blackMove.pos);
+                    } else if (startPiece.getClass() == Pawn.class && blackMove.pos.y == 0) {
                         testboard.movePiece(blackMove);
                         black.upgradePawn(testboard, startPiece);
                     } else {
@@ -199,31 +199,6 @@ public class GameManager {
                 }
             }
         }
-    }
-
-
-    /*
-    Castle will castle two pieces if it doesn't have any pieces in between and returns true if it does
-     */
-    private static boolean castle(ChessBoard curr, Location kingPos, Location rookPos){
-        //Which direction to check spaces for
-        int direction = 1;
-        if(kingPos.x > rookPos.x)
-            direction = -1;
-
-        //Creating the new locations
-        Location kingNew = new Location(kingPos.x+(2*direction), kingPos.y);
-        Location rookNew = new Location(kingPos.x+direction, kingPos.y);
-
-        //Setting the pieces to the new locations
-        curr.board[kingPos.x][kingPos.y].pieceHold.setLocation(kingNew.x, kingNew.y);
-        curr.board[kingNew.x][kingNew.y].pieceHold = curr.board[kingPos.x][kingPos.y].pieceHold;
-        curr.board[kingPos.x][kingPos.y].pieceHold = null;
-        curr.board[rookPos.x][rookPos.y].pieceHold.setLocation(rookNew.x, rookNew.y);
-        curr.board[rookNew.x][rookNew.y].pieceHold = curr.board[rookPos.x][rookPos.y].pieceHold;
-        curr.board[rookPos.x][rookPos.y].pieceHold = null;
-
-        return true;
     }
 
     /*
@@ -258,13 +233,25 @@ public class GameManager {
      */
     private static void generateAllMoves(ChessBoard curr){
         curr.checkPiece = null;
+        ChessPiece wKing = null;
+        ChessPiece bKing = null;
         for(ChessPiece piece : curr.whitePieces){
+            if(piece.getClass() == King.class){
+                wKing = piece;
+            }
             if(!piece.getRemoved())
                 piece.generateMoves(curr);
         }
         for(ChessPiece piece : curr.blackPieces){
+            if(piece.getClass() == King.class){
+                bKing = piece;
+            }
             if(!piece.getRemoved())
                 piece.generateMoves(curr);
+        }
+        if(wKing != null || bKing != null) {
+            wKing.generateMoves(curr);
+            bKing.generateMoves(curr);
         }
     }
 
