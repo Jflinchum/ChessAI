@@ -110,12 +110,15 @@ public class Gaulem implements Player {
             }
         }
 
+        //Creating a new monitor class which keeps track of the best move
         Monitor m = new Monitor();
         ExecutorService pool = Executors.newCachedThreadPool();
+        //Creates a new thread in the pool for each move
         for (Move move : moves) {
             pool.execute(new moveThread(move, board, m, white));
         }
         pool.shutdown();
+        //Attempts to shut down the pool and waits 60 seconds
         try {
             pool.awaitTermination(60L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
@@ -126,6 +129,10 @@ public class Gaulem implements Player {
         return m.moveChoice;
     }
 
+    /*
+    A monitor class which keeps track of the best move.
+    Contains a synchronized function that each thread can call to check the move against the best move
+     */
     private static class Monitor{
         Move moveChoice = null;
         double moveWeight = -100000;
@@ -138,8 +145,10 @@ public class Gaulem implements Player {
         }
     }
 
+    /*
+    A runnable that calculates the move weight using a recursive function to look multiple moves ahead
+     */
     private static class moveThread implements Runnable{
-
         private Move move;
         private ChessBoard board;
         private double moveWeight = 0;
@@ -154,25 +163,33 @@ public class Gaulem implements Player {
         }
 
         public void run(){
+            //Copies the current board
             ChessBoard copy = board.copy();
             ChessPiece movePiece = copy.board[move.from.x][move.from.y].pieceHold;
+            //Checking if the move is a castle
             if(movePiece != null && movePiece.getClass() == King.class && !movePiece.getMoved() && move.pos.y == (movePiece.white ? 0 : 7) && (move.pos.x == 0 || move.pos.x == 7)){
                 copy.castle(move.from, move.pos);
             }
+            //Checking if the move is a regular move
             else{
                 copy.movePiece(move.copy());
             }
+            //Checking if it can upgrade a pawn from the move
             if(movePiece != null && move.pos.y == (movePiece.white ? 7 : 0) && movePiece.getClass() == Pawn.class){
                 upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold);
             }
 
             double moveEval = evaluateBoard(copy, copy.turn%2==1);
             copy.turn++;
+            //Calling the recursive function to look ahead
             moveEval += evalFunction(copy, maxDepth-1);
             this.moveWeight = moveEval;
             monitor.moveCheck(move, moveWeight);
         }
 
+        /*
+        A recursive function to check multiple moves ahead from the board and evaluate it
+         */
         private double evalFunction(ChessBoard board, int depth) {
             ArrayList<Move> moves = new ArrayList<>();
             float tempo = 0;
@@ -211,13 +228,16 @@ public class Gaulem implements Player {
                     upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold);
                 }
                 double moveEval = evaluateBoard(copy, board.turn%2==1);
+                //Adding the number of good moves that can result from this current move being looked at
                 if(moveEval > 0){
                     tempo+=mobWeight/2;
                 }
+                //Subtracting the number of bad moves that can result from this current move being looked at
                 else{
                     tempo-=mobWeight/2;
                 }
                 copy.turn++;
+
                 if(depth > 0)
                     moveEval += evalFunction(copy, --depth);
                 if (moveEval > moveWeight) {
@@ -227,6 +247,9 @@ public class Gaulem implements Player {
             return -(moveWeight+tempo);
         }
 
+        /*
+        Upgrades the pawn on the board to a queen
+         */
         public ChessPiece upgradePawn(ChessBoard board, ChessPiece pawn) {
             ChessPiece newPiece = new Queen(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
             newPiece.setMoved(true);
@@ -240,6 +263,9 @@ public class Gaulem implements Player {
             return newPiece;
         }
 
+        /*
+        Evaluating the board to see if the whoToMove player is in a good position or bad one
+         */
         public double evaluateBoard(ChessBoard board, boolean whoToMove) {
             double eval = 0;
             int wK = 0;
@@ -257,6 +283,9 @@ public class Gaulem implements Player {
             int wMoves = 0;
             int bMoves = 0;
 
+            /*
+            Counting all of the white pieces
+             */
             for (ChessPiece piece : board.whitePieces) {
                 piece.generateMoves(board);
                 if (!piece.getRemoved()) {
@@ -290,6 +319,9 @@ public class Gaulem implements Player {
                 }
             }
 
+            /*
+            Counting all of the black pieces
+             */
             for (ChessPiece piece : board.blackPieces) {
                 piece.generateMoves(board);
                 if (!piece.getRemoved()) {
@@ -337,6 +369,9 @@ public class Gaulem implements Player {
         }
     }
 
+    /*
+    The upgrade pawn class for the AI that is called from the game manager.
+     */
     public ChessPiece upgradePawn(ChessBoard board, ChessPiece pawn) {
         ChessPiece newPiece = new Queen(pawn.getColor(), pawn.getLocation().x, pawn.getLocation().y);
         newPiece.setMoved(true);
@@ -349,6 +384,5 @@ public class Gaulem implements Player {
         }
         return newPiece;
     }
-
 
 }

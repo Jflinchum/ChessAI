@@ -17,7 +17,7 @@ public class Chesshire implements Player {
     private int bWeight = 3;
     private int pWeight = 1;
     private double mobWeight = 0.1;
-    private int maxDepth = 15;
+    private int maxDepth = 10;
 
     public double[][] kSquareTable =
                     {{ -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
