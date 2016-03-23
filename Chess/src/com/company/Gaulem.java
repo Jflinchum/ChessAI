@@ -19,7 +19,7 @@ public class Gaulem implements Player {
     private static int bWeight = 3;
     private static int pWeight = 1;
     private static double mobWeight = 0.1;
-    private static int maxDepth = 15;
+    private static int maxDepth = 10;
 
     public static double[][] kSquareTable =
             {{ -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
@@ -78,7 +78,7 @@ public class Gaulem implements Player {
                     {.05, .05, .1, .5, .5, .1, .05,.05},
                     {  0,   0,  0, .2, .2,  0,   0,  0},
                     {.05,-.05,-.1,  0,  0,-.1,-.05,.05},
-                    {.05,  .1, .1,-.2,-.2, .1,  .1,.05},
+                    {.05,  .1, .1,-.3,-.3, .1,  .1,.05},
                     {  0,   0,  0,  0,  0,  0,   0,  0}};
 
     public Gaulem(boolean white) {
@@ -182,9 +182,12 @@ public class Gaulem implements Player {
             double moveEval = evaluateBoard(copy, copy.turn%2==1);
             copy.turn++;
             //Calling the recursive function to look ahead
-            moveEval += evalFunction(copy, maxDepth-1);
+            if(maxDepth > 0) {
+                moveEval += evalFunction(copy, maxDepth - 1);
+            }
             this.moveWeight = moveEval;
             monitor.moveCheck(move, moveWeight);
+            //System.out.println(move + " " + " " + moveWeight);
         }
 
         /*
@@ -192,7 +195,6 @@ public class Gaulem implements Player {
          */
         private double evalFunction(ChessBoard board, int depth) {
             ArrayList<Move> moves = new ArrayList<>();
-            float tempo = 0;
             //Getting all moves from the white or black pieces into an array list
             if (board.turn % 2 == 1) {
                 for (ChessPiece piece : board.whitePieces) {
@@ -227,15 +229,7 @@ public class Gaulem implements Player {
                 if(movePiece != null && move.pos.y == (movePiece.white ? 7 : 0) && movePiece.getClass() == Pawn.class){
                     upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold);
                 }
-                double moveEval = evaluateBoard(copy, board.turn%2==1);
-                //Adding the number of good moves that can result from this current move being looked at
-                if(moveEval > 0){
-                    tempo+=mobWeight/2;
-                }
-                //Subtracting the number of bad moves that can result from this current move being looked at
-                else{
-                    tempo-=mobWeight/2;
-                }
+                double moveEval = evaluateBoard(copy, copy.turn%2==1);
                 copy.turn++;
 
                 if(depth > 0)
@@ -244,7 +238,7 @@ public class Gaulem implements Player {
                     moveWeight = moveEval;
                 }
             }
-            return -(moveWeight+tempo);
+            return -(moveWeight);
         }
 
         /*
@@ -278,11 +272,12 @@ public class Gaulem implements Player {
             int bN = 0;
             int wB = 0;
             int bB = 0;
-            int wP = 0;
-            int bP = 0;
+            ArrayList<ChessPiece> wPawns = new ArrayList<>();
+            ArrayList<ChessPiece> bPawns = new ArrayList<>();
             int wMoves = 0;
             int bMoves = 0;
 
+            double squareTable = 0;
             /*
             Counting all of the white pieces
              */
@@ -291,27 +286,27 @@ public class Gaulem implements Player {
                 if (!piece.getRemoved()) {
                     if (piece.getClass() == King.class) {
                         wK++;
-                        eval += kSquareTable[piece.getLocation().y][piece.getLocation().x];
+                        squareTable += kSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Queen.class) {
                         wQ++;
-                        eval += qSquareTable[piece.getLocation().y][piece.getLocation().x];
+                        squareTable += qSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Rook.class) {
                         wR++;
-                        eval += rSquareTable[piece.getLocation().y][piece.getLocation().x];
+                        squareTable += rSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Knight.class) {
                         wN++;
-                        eval += nSquareTable[piece.getLocation().y][piece.getLocation().x];
+                        squareTable += nSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Bishop.class) {
                         wB++;
-                        eval += bSquareTable[piece.getLocation().y][piece.getLocation().x];
+                        squareTable += bSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Pawn.class) {
-                        wP++;
-                        eval += pSquareTable[piece.getLocation().y][piece.getLocation().x];
+                        wPawns.add(piece);
+                        squareTable += pSquareTable[7-piece.getLocation().y][piece.getLocation().x];
                     }
                     if(piece.getClass() != Queen.class ) {
                         wMoves += piece.getMoves().size();
@@ -327,31 +322,75 @@ public class Gaulem implements Player {
                 if (!piece.getRemoved()) {
                     if (piece.getClass() == King.class) {
                         bK++;
-                        eval += kSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                        squareTable -= kSquareTable[piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Queen.class) {
                         bQ++;
-                        eval += qSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                        squareTable -= qSquareTable[piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Rook.class) {
                         bR++;
-                        eval += rSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                        squareTable -= rSquareTable[piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Knight.class) {
                         bN++;
-                        eval += nSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                        squareTable -= nSquareTable[piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Bishop.class) {
                         bB++;
-                        eval += bSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                        squareTable -= bSquareTable[piece.getLocation().y][piece.getLocation().x];
                     }
                     if (piece.getClass() == Pawn.class) {
-                        bP++;
-                        eval += pSquareTable[7-piece.getLocation().y][piece.getLocation().x];
+                        bPawns.add(piece);
+                        squareTable -= pSquareTable[piece.getLocation().y][piece.getLocation().x];
                     }
                     if(piece.getClass() != Queen.class ) {
                         bMoves += piece.getMoves().size();
                     }
+                }
+            }
+
+            double doubleWPawns = 0;
+            double doubleBPawns = 0;
+            double isolatedWPawns = 0;
+            double isolatedBPawns = 0;
+            //Going through pawns and evaluating those.
+            for(ChessPiece pawn : wPawns){
+                boolean isolated = true;
+                for(ChessPiece pawn2 : wPawns){
+                    if(pawn != pawn2) {
+                        if (pawn.getLocation().x == pawn2.getLocation().x) {
+                            doubleWPawns++;
+                        }
+                        if (pawn.getLocation().x == pawn2.getLocation().x+1) {
+                            isolated = false;
+                        }
+                        if (pawn.getLocation().x == pawn2.getLocation().x-1) {
+                            isolated = false;
+                        }
+                    }
+                }
+                if(isolated){
+                    isolatedWPawns++;
+                }
+            }
+            for(ChessPiece pawn : bPawns){
+                boolean isolated = true;
+                for(ChessPiece pawn2 : bPawns){
+                    if(pawn != pawn2) {
+                        if (pawn.getLocation().x == pawn2.getLocation().x) {
+                            doubleBPawns++;
+                        }
+                        if (pawn.getLocation().x == pawn2.getLocation().x+1) {
+                            isolated = false;
+                        }
+                        if (pawn.getLocation().x == pawn2.getLocation().x-1) {
+                            isolated = false;
+                        }
+                    }
+                }
+                if(isolated){
+                    isolatedBPawns++;
                 }
             }
 
@@ -361,7 +400,7 @@ public class Gaulem implements Player {
                     + rWeight * (wR - bR)
                     + nWeight * (wN - bN)
                     + bWeight * (wB - bB)
-                    + pWeight * (wP - bP));
+                    + pWeight * ((wPawns.size() - doubleWPawns*(1/4) - isolatedWPawns*(1/4)) - (bPawns.size() - doubleBPawns*(1/4) - isolatedBPawns*(1/4))));
             //Mobility
             eval += mobWeight * (wMoves - bMoves);
 
