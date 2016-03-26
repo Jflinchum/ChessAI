@@ -18,6 +18,7 @@ public class Gaulem implements Player {
     private static int nWeight = 3;
     private static int bWeight = 3;
     private static int pWeight = 1;
+    private static int wastedMoveWeight = 5;
     private static double mobWeight = 0.1;
     private static int maxDepth = 10;
 
@@ -95,7 +96,7 @@ public class Gaulem implements Player {
                 if (!piece.getRemoved()) {
                     piece.generateMoves(board);
                     for (Location move : piece.getMoves()) {
-                        moves.add(new Move(piece.getLocation(), move));
+                        moves.add(new Move(piece.getLocation(), move, piece));
                     }
                 }
             }
@@ -104,7 +105,7 @@ public class Gaulem implements Player {
                 piece.generateMoves(board);
                 if (!piece.getRemoved()) {
                     for (Location move : piece.getMoves()) {
-                        moves.add(new Move(piece.getLocation(), move));
+                        moves.add(new Move(piece.getLocation(), move, piece));
                     }
                 }
             }
@@ -183,7 +184,10 @@ public class Gaulem implements Player {
             copy.turn++;
             //Calling the recursive function to look ahead
             if(maxDepth > 0) {
-                moveEval += evalFunction(copy, maxDepth - 1);
+                Move[] history = new Move[maxDepth+1];
+                ChessBoard[] boardHistory = new ChessBoard[maxDepth+1];
+                history[0] = this.move;
+                moveEval += evalFunction(copy, 0, history, boardHistory);
             }
             this.moveWeight = moveEval;
             monitor.moveCheck(move, moveWeight);
@@ -193,7 +197,7 @@ public class Gaulem implements Player {
         /*
         A recursive function to check multiple moves ahead from the board and evaluate it
          */
-        private double evalFunction(ChessBoard board, int depth) {
+        private double evalFunction(ChessBoard board, int depth, Move[] history, ChessBoard[] boardHistory) {
             ArrayList<Move> moves = new ArrayList<>();
             //Getting all moves from the white or black pieces into an array list
             if (board.turn % 2 == 1) {
@@ -201,7 +205,7 @@ public class Gaulem implements Player {
                     if (!piece.getRemoved()) {
                         piece.generateMoves(board);
                         for (Location move : piece.getMoves()) {
-                            moves.add(new Move(piece.getLocation(), move));
+                            moves.add(new Move(piece.getLocation(), move, piece));
                         }
                     }
                 }
@@ -210,7 +214,7 @@ public class Gaulem implements Player {
                     if (!piece.getRemoved()) {
                         piece.generateMoves(board);
                         for (Location move : piece.getMoves()) {
-                            moves.add(new Move(piece.getLocation(), move));
+                            moves.add(new Move(piece.getLocation(), move, piece));
                         }
                     }
                 }
@@ -230,10 +234,16 @@ public class Gaulem implements Player {
                     upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold);
                 }
                 double moveEval = evaluateBoard(copy, copy.turn%2==1);
+                boardHistory[depth] = copy.copy();
+                history[depth] = move.copy();
                 copy.turn++;
-
-                if(depth > 0)
-                    moveEval += evalFunction(copy, --depth);
+                if(depth < maxDepth) {
+                    moveEval += evalFunction(copy, ++depth, history, boardHistory);
+                }
+                if(depth-2 > 0 && history[depth].piece == history[depth-2].piece
+                        && evaluateBoard(boardHistory[depth], history[depth].piece.getColor()) <= evaluateBoard(boardHistory[depth-2], history[depth-2].piece.getColor())){
+                    moveEval -= wastedMoveWeight;
+                }
                 if (moveEval > moveWeight) {
                     moveWeight = moveEval;
                 }

@@ -137,7 +137,7 @@ public class ChessBoard {
      */
     public boolean removesCheck(ChessPiece piece, Location pos){
         ChessBoard copy = this.copy();
-        copy.movePiece(new Move(piece.getLocation(), pos));
+        copy.movePiece(new Move(piece.getLocation(), pos, piece));
         copy.checkPiece=null;
         if(piece.getColor()){
             for(ChessPiece enemy : copy.blackPieces){

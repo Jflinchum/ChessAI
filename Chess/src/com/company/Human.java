@@ -53,7 +53,7 @@ public class Human implements Player {
                             //Moving the piece if it can
                             //if (movePiece(piece, testboard, new Location(newLoc.x, newLoc.y)))
                             if(checkMove(piece, new Location(newLoc.x, newLoc.y)))
-                                return new Move(oldLoc, newLoc);
+                                return new Move(oldLoc, newLoc, piece);
                                 //If it can't move the piece
                             else
                                 System.err.println("Invalid Move.");
@@ -99,7 +99,7 @@ public class Human implements Player {
                                                 System.err.println("Invalid castle.");
                                             }
                                             else{
-                                                return new Move(kingLoc, rookLoc);
+                                                return new Move(kingLoc, rookLoc, kingPiece);
                                             }
                                         }
                                     }

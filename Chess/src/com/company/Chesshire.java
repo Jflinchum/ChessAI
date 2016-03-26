@@ -93,7 +93,7 @@ public class Chesshire implements Player {
                 if (!piece.getRemoved()) {
                     piece.generateMoves(board);
                     for (Location move : piece.getMoves()) {
-                        moves.add(new Move(piece.getLocation(), move));
+                        moves.add(new Move(piece.getLocation(), move, piece));
                     }
                 }
             }
@@ -102,7 +102,7 @@ public class Chesshire implements Player {
                 piece.generateMoves(board);
                 if (!piece.getRemoved()) {
                     for (Location move : piece.getMoves()) {
-                        moves.add(new Move(piece.getLocation(), move));
+                        moves.add(new Move(piece.getLocation(), move, piece));
                     }
                 }
             }
@@ -146,7 +146,7 @@ public class Chesshire implements Player {
                 if (!piece.getRemoved()) {
                     piece.generateMoves(board);
                     for (Location move : piece.getMoves()) {
-                        moves.add(new Move(piece.getLocation(), move));
+                        moves.add(new Move(piece.getLocation(), move, piece));
                     }
                 }
             }
@@ -155,7 +155,7 @@ public class Chesshire implements Player {
                 if (!piece.getRemoved()) {
                     piece.generateMoves(board);
                     for (Location move : piece.getMoves()) {
-                        moves.add(new Move(piece.getLocation(), move));
+                        moves.add(new Move(piece.getLocation(), move, piece));
                     }
                 }
             }
