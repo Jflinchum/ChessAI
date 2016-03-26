@@ -67,4 +67,8 @@ public abstract class ChessPiece {
 
     public abstract String toString();
 
+    public boolean equals(ChessPiece piece){
+        return (this.getClass() == piece.getClass()) && (this.getColor() == piece.getColor());
+    }
+
 }
