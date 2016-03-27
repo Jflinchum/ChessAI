@@ -15,7 +15,7 @@ public class Evaluation {
     private static int pWeight = 1;
     private static int wastedMoveWeight = 50;
     private static double mobWeight = 0.1;
-    public static int maxDepth = 8;
+    public static int maxDepth = 3;
 
     public static double[][] kSquareTable =
             {{ -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
@@ -65,7 +65,7 @@ public class Evaluation {
                     { -.1,   0, .1, .1, .1, .1,   0,-.1},
                     { -.1,  .1, .1, .1, .1, .1,  .1, -.1},
                     { -.1, .05,  0,  0,  0,  0, .05,-.1},
-                    { -.2, -.1,-.1,-.1,-.1,-.1, -.1,-.2}};
+                    { -.2, -.1,-.2,-.1,-.1,-.2, -.1,-.2}};
 
     public static double[][] pSquareTable =
             {{ 0,   0,  0,  0,  0,  0,   0,  0},
@@ -117,24 +117,18 @@ public class Evaluation {
                 upgradePawn(copy, copy.board[move.pos.x][move.pos.y].pieceHold, white);
             }
             double moveEval = evaluateBoard(copy, copy.turn%2==1);
-            boardHistory[depth] = copy.copy();
-            history[depth] = move;
+            boardHistory[depth+1] = copy;
+            history[depth+1] = move;
             copy.turn++;
-            if(depth-2 >= 0){
+            if(depth-1 >= 0){
                 //&& evaluateBoard(boardHistory[depth], history[depth].piece.getColor()) <= evaluateBoard(boardHistory[depth-2], history[depth-2].piece.getColor())){
-                for(int i = 0; i < depth; i++){
-                    if(history[i] == null) {
-                        break;
-                    }
-                    if(history[i].piece.equals(move.piece)){
-                        if(evaluateBoard(boardHistory[depth], boardHistory[depth].turn%2==1) <= evaluateBoard(boardHistory[i], boardHistory[i].turn%2==1)){
-                            moveEval -= wastedMoveWeight;
-                        }
-                    }
+                if(move.piece.equals(history[depth-1].piece) && move.from.equals(history[depth-1].pos)
+                        && evaluateBoard(boardHistory[depth+1], !(boardHistory[depth+1].turn % 2 == 1)) <= evaluateBoard(boardHistory[depth-1],!(boardHistory[depth-1].turn % 2 == 1))) {
+                    moveEval -= wastedMoveWeight;
                 }
             }
             if(depth < maxDepth) {
-                moveEval += evalFunction(copy, ++depth, history, boardHistory, white);
+                moveEval += evalFunction(copy, 1+depth, history, boardHistory, white);
             }
             if (moveEval > moveWeight) {
                 moveWeight = moveEval;
@@ -305,6 +299,7 @@ public class Evaluation {
                 + pWeight * ((wPawns.size() - doubleWPawns*(1/4) - isolatedWPawns*(1/4)) - (bPawns.size() - doubleBPawns*(1/4) - isolatedBPawns*(1/4))));
         //Mobility
         eval += mobWeight * (wMoves - bMoves);
+        eval += squareTable;
 
         return eval * (whoToMove ? 1 : -1);
     }

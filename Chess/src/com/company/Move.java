@@ -19,7 +19,7 @@ public class Move {
     }
 
     public String toString(){
-        return from.toString() + " : " + pos.toString();
+        return from.toString() + " : " + pos.toString() + " - " + piece.toString();
     }
 
     public Move copy (){

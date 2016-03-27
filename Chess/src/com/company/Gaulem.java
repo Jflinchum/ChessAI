@@ -115,9 +115,10 @@ public class Gaulem implements Player {
             copy.turn++;
             //Calling the recursive function to look ahead
             if(Evaluation.maxDepth > 0) {
-                Move[] history = new Move[Evaluation.maxDepth+1];
-                ChessBoard[] boardHistory = new ChessBoard[Evaluation.maxDepth+1];
-                history[0] = this.move;
+                Move[] history = new Move[Evaluation.maxDepth+2];
+                ChessBoard[] boardHistory = new ChessBoard[Evaluation.maxDepth+2];
+                history[0] = this.move.copy();
+                boardHistory[0] = copy.copy();
                 moveEval += Evaluation.evalFunction(copy, 0, history, boardHistory, white);
             }
             this.moveWeight = moveEval;
