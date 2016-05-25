@@ -13,7 +13,7 @@ public class Evaluation {
     private static int nWeight = 3;
     private static int bWeight = 3;
     private static int pWeight = 1;
-    private static int wastedMoveWeight = 50;
+    private static int wastedMoveWeight = 5;
     private static double mobWeight = 0.1;
     public static int maxDepth = 3;
 
