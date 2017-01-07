@@ -16,6 +16,7 @@ public class Evaluation {
     private static int wastedMoveWeight = 5;
     private static double mobWeight = 0.1;
     public static int maxDepth = 3;
+    private static double maxEval = 0;
 
     public static double[][] kSquareTable =
             {{ -.3, -.4, -.4, -.5, -.5, -.4, -.4, -.3},
@@ -127,7 +128,7 @@ public class Evaluation {
                     moveEval -= wastedMoveWeight;
                 }
             }
-            if(depth < maxDepth) {
+            if(depth < maxDepth && moveEval >= maxEval) {
                 moveEval += evalFunction(copy, 1+depth, history, boardHistory, white);
             }
             if (moveEval > moveWeight) {
