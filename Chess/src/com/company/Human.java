@@ -22,114 +22,125 @@ public class Human implements Player {
         while(!validCommand) {
             System.out.print("Command: ");
             answer = input.nextLine();
-            if (answer.length() >= 4 && answer.substring(0, 4).equals("help")) {
+            String[] answerParams = answer.split(" ");
+            if (answerParams[0].equals("help")) {
                 System.out.println("Commands:\nmove n,m j,k\nprint\nstop\ncastle n,m j,k\nmoves n,m");
             }
-            else if (answer.length() >= 5 && answer.substring(0, 5).equals("moves")) {
-                if(answer.length() >= 9 && isNumeric(answer.substring(6, 7)) && isNumeric(answer.substring(8, 9))){
-                    Location pos = new Location(Integer.parseInt(answer.substring(6,7)), Integer.parseInt(answer.substring(8,9)));
-                    if(testboard.board[pos.x][pos.y].pieceHold != null){
-                        System.out.println(testboard.board[pos.x][pos.y].pieceHold.toString() + " " + testboard.board[pos.x][pos.y].pieceHold.getMoves());
+            else if (answerParams[0].equals("moves")) {
+                // Check if the position variable exists (n,m)
+                if (answerParams.length >= 2) {
+                    String[] position = answerParams[1].split(",");
+                    // Validate position variable
+                    if(isNumeric(position[0]) && isNumeric(position[1])){
+                        Location pos = new Location(Integer.parseInt(position[0]), Integer.parseInt(position[1]));
+                        if(testboard.board[pos.x][pos.y].pieceHold != null){
+                            System.out.println(testboard.board[pos.x][pos.y].pieceHold.toString() + " " + testboard.board[pos.x][pos.y].pieceHold.getMoves());
+                        }
+                        else{
+                            System.err.println("There is no piece there.");
+                        }
                     }
                     else{
-                        System.err.println("There is no piece there.");
+                        System.err.println("Invalid use of command:\nProper use: moves n,m");
                     }
                 }
-                else{
+                else {
                     System.err.println("Invalid use of command:\nProper use: moves n,m");
                 }
             }
-            else if (answer.length() >= 4 && answer.substring(0, 4).equals("move")) {
-                //move is a proper command it is the proper size and if the numbers at the proper positions are actually numbers.
-                if (answer.length() >= 12 && isNumeric(answer.substring(5, 6)) && isNumeric(answer.substring(7, 8))
-                        && isNumeric(answer.substring(9, 10)) && isNumeric(answer.substring(11, 12))) {
-                    Location oldLoc = new Location(Integer.parseInt(answer.substring(5,6)), Integer.parseInt(answer.substring(7, 8)));
-                    Location newLoc = new Location(Integer.parseInt(answer.substring(9,10)), Integer.parseInt(answer.substring(11,12)));
-                    ChessPiece piece = testboard.board[oldLoc.x][oldLoc.y].pieceHold;
+            else if (answerParams[0].equals("move")) {
+                if (answerParams.length >= 3) {
+                    String[] origin = answerParams[1].split(",");
+                    String[] target = answerParams[2].split(",");
+                    //move is a proper command it is the proper size and if the numbers at the proper positions are actually numbers.
+                    if (isNumeric(origin) && isNumeric(target)) {
+                        Location oldLoc = new Location(Integer.parseInt(origin[0]), Integer.parseInt(origin[1]));
+                        Location newLoc = new Location(Integer.parseInt(target[0]), Integer.parseInt(target[1]));
+                        ChessPiece piece = testboard.board[oldLoc.x][oldLoc.y].pieceHold;
 
-                    if (piece != null) {
-                        //Checking if the pieces color matches the color that should be moving
-                        if((testboard.turn%2==1) == piece.getColor()){
-                            //Moving the piece if it can
-                            //if (movePiece(piece, testboard, new Location(newLoc.x, newLoc.y)))
-                            if(checkMove(piece, new Location(newLoc.x, newLoc.y)))
-                                return new Move(oldLoc, newLoc, piece);
-                                //If it can't move the piece
-                            else
-                                System.err.println("Invalid Move.");
-                        }
-                        //If it isn't the right color
-                        else{
-                            System.err.println("That piece is "
-                                    + (piece.getColor() ? "White. " : "Black. ")
-                                    + "It is currently " + (testboard.turn%2==0 ? "Black's " : "White's ") + "turn.");
-                        }
-                    }
-                    else
-                        System.err.println("There is no piece there.");
-                }
-                else
-                    System.err.println("Invalid use of move command:\nProper use: move n,m j,k");
-
-            }
-            else if(answer.length() >= 6 && answer.substring(0, 6).equals("castle")){
-                if (answer.length() >= 14 && isNumeric(answer.substring(7, 8)) && isNumeric(answer.substring(9, 10))
-                        && isNumeric(answer.substring(11, 12)) && isNumeric(answer.substring(13, 14))) {
-                    Location kingLoc = new Location(Integer.parseInt(answer.substring(7,8)), Integer.parseInt(answer.substring(9,10)));
-                    Location rookLoc = new Location(Integer.parseInt(answer.substring(11,12)), Integer.parseInt(answer.substring(13,14)));
-                    ChessPiece kingPiece = testboard.board[kingLoc.x][kingLoc.y].pieceHold;
-                    ChessPiece rookPiece = testboard.board[rookLoc.x][rookLoc.y].pieceHold;
-
-                    if(kingPiece != null){
-                        if(kingPiece.getClass() == King.class){
-                            //Checking if it is the right color
-                            if((testboard.turn%2==1) == kingPiece.getColor()){
-                                //Checking if the king is in check
-                                if(testboard.checkPiece != null && testboard.checkPiece == kingPiece){
-                                    System.err.println("The king is currently in check.");
-                                }
-                                else{
-                                    if(rookPiece != null && rookPiece.getClass() == Rook.class
-                                            && rookPiece.getColor() == kingPiece.getColor() && rookLoc.y == kingLoc.y){
-                                        if(kingPiece.getMoved()){
-                                            System.err.println("You can not castle if the king has moved.");
-                                        }
-                                        else{
-                                            if(!checkCastle(testboard, kingLoc, rookLoc)){
-                                                System.err.println("Invalid castle.");
-                                            }
-                                            else{
-                                                return new Move(kingLoc, rookLoc, kingPiece);
-                                            }
-                                        }
-                                    }
-                                    else{
-                                        System.err.println("The other piece must be a rook of the same color " +
-                                                "in order to castle.");
-                                    }
-                                }
+                        if (piece != null) {
+                            //Checking if the pieces color matches the color that should be moving
+                            if ((testboard.turn % 2 == 1) == piece.getColor()) {
+                                //Moving the piece if it can
+                                //if (movePiece(piece, testboard, new Location(newLoc.x, newLoc.y)))
+                                if (checkMove(piece, new Location(newLoc.x, newLoc.y)))
+                                    return new Move(oldLoc, newLoc, piece);
+                                    //If it can't move the piece
+                                else
+                                    System.err.println("Invalid Move.");
                             }
                             //If it isn't the right color
-                            else{
+                            else {
                                 System.err.println("That piece is "
-                                        + (kingPiece.getColor() ? "White. " : "Black. ")
-                                        + "It is currently " + (testboard.turn%2==0 ? "Black's " : "White's ") + "turn.");
+                                        + (piece.getColor() ? "White. " : "Black. ")
+                                        + "It is currently " + (testboard.turn % 2 == 0 ? "Black's " : "White's ") + "turn.");
                             }
-                        }
-                        else
-                            System.err.println("Must castle with a king.");
-                    }
-                    else
-                        System.err.println("There is no piece there.");
+                        } else
+                            System.err.println("There is no piece there.");
+                    } else
+                        System.err.println("Invalid use of move command:\nProper use: move n,m j,k");
                 }
-                else
-                    System.err.println("Invalid use of castle command:\nProper use: castle n,m j,k");
+                else {
+                    System.err.println("Invalid use of move command:\nProper use: move n,m j,k");
+                }
             }
-            else if (answer.length() >= 4 && answer.substring(0,4).equals("stop")){
+            else if(answerParams[0].equals("castle")){
+                if (answerParams.length >= 3) {
+                    String[] origin = answerParams[1].split(",");
+                    String[] target = answerParams[2].split(",");
+                    if (isNumeric(origin) && isNumeric(target)) {
+                        Location kingLoc = new Location(Integer.parseInt(origin[0]), Integer.parseInt(origin[1]));
+                        Location rookLoc = new Location(Integer.parseInt(target[0]), Integer.parseInt(target[1]));
+                        ChessPiece kingPiece = testboard.board[kingLoc.x][kingLoc.y].pieceHold;
+                        ChessPiece rookPiece = testboard.board[rookLoc.x][rookLoc.y].pieceHold;
+
+                        if (kingPiece != null) {
+                            if (kingPiece.getClass() == King.class) {
+                                //Checking if it is the right color
+                                if ((testboard.turn % 2 == 1) == kingPiece.getColor()) {
+                                    //Checking if the king is in check
+                                    if (testboard.checkPiece != null && testboard.checkPiece == kingPiece) {
+                                        System.err.println("The king is currently in check.");
+                                    } else {
+                                        if (rookPiece != null && rookPiece.getClass() == Rook.class
+                                                && rookPiece.getColor() == kingPiece.getColor() && rookLoc.y == kingLoc.y) {
+                                            if (kingPiece.getMoved()) {
+                                                System.err.println("You can not castle if the king has moved.");
+                                            } else {
+                                                if (!checkCastle(testboard, kingLoc, rookLoc)) {
+                                                    System.err.println("Invalid castle.");
+                                                } else {
+                                                    return new Move(kingLoc, rookLoc, kingPiece);
+                                                }
+                                            }
+                                        } else {
+                                            System.err.println("The other piece must be a rook of the same color " +
+                                                    "in order to castle.");
+                                        }
+                                    }
+                                }
+                                //If it isn't the right color
+                                else {
+                                    System.err.println("That piece is "
+                                            + (kingPiece.getColor() ? "White. " : "Black. ")
+                                            + "It is currently " + (testboard.turn % 2 == 0 ? "Black's " : "White's ") + "turn.");
+                                }
+                            } else
+                                System.err.println("Must castle with a king.");
+                        } else
+                            System.err.println("There is no piece there.");
+                    } else
+                        System.err.println("Invalid use of castle command:\nProper use: castle n,m j,k");
+                }
+                else {
+                    System.err.println("Invalid use of castle command:\nProper use: castle n,m j,k");
+                }
+            }
+            else if (answerParams[0].equals("stop")){
                 validCommand = true;
             }
             //Reprinting the board
-            else if (answer.length() >= 5 && answer.substring(0,5).equals("print")){
+            else if (answerParams[0].equals("print")){
                 System.out.println((testboard.turn%2 == 0 ? "Black " : "White ") + "Turn: " + testboard.turn);
                 System.out.println(testboard);
             }
@@ -148,6 +159,21 @@ public class Human implements Player {
             Double.parseDouble(s);
         }
         catch(NumberFormatException n){
+            return false;
+        }
+        return true;
+    }
+
+    /*
+   isNumeric function returns true if the array of strings are numbers and false otherwise
+    */
+    private boolean isNumeric(String[] s) {
+        try {
+            for(String sub : s) {
+                Double.parseDouble(sub);
+            }
+        }
+        catch(NumberFormatException n) {
             return false;
         }
         return true;
